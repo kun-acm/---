@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人体解剖学刷题</title>
+<style>
+/* ═══════════════════════════════════════════
+   Claude-inspired design system
+   ═══════════════════════════════════════════ */
+:root {
+  --bg:        #faf9f7;
+  --surface:   #ffffff;
+  --text:      #141413;
+  --text-sub:  #6b6966;
+  --text-muted:#9c9a96;
+  --accent:    #d97706;
+  --accent-h:  #b45309;
+  --accent-bg: #fffbeb;
+  --correct:   #15803d;
+  --correct-bg:#f0fdf4;
+  --wrong:     #b91c1c;
+  --wrong-bg:  #fef2f2;
+  --border:    #e7e5e2;
+  --border-lt: #f0eeeb;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.06);
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 16px;
+  --font-sans: "Inter","SF Pro Text","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --font-serif: "Editorial New","Georgia","Noto Serif SC","SimSun",serif;
+  --max-w:     752px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:17px; -webkit-font-smoothing:antialiased; }
+body {
+  font-family:var(--font-sans); background:var(--bg); color:var(--text);
+  min-height:100vh; line-height:1.6;
+}
+
+/* ── Top bar ── */
+.topbar {
+  position:sticky; top:0; z-index:100;
+  background:rgba(250,249,247,.85); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 24px; height:56px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.topbar .logo {
+  font-family:var(--font-serif); font-size:19px; font-weight:600;
+  color:var(--text); letter-spacing:-.01em;
+}
+.topbar .nav { display:flex; gap:4px; }
+.topbar .nav button {
+  padding:7px 16px; border:1px solid transparent; border-radius:20px;
+  background:transparent; color:var(--text-sub); cursor:pointer;
+  font-size:14px; font-family:var(--font-sans); transition:all .18s;
+}
+.topbar .nav button:hover { background:var(--accent-bg); color:var(--accent); }
+.topbar .nav button.active {
+  background:var(--text); color:#fff; border-color:var(--text);
+}
+
+/* ── Layout ── */
+.main {
+  max-width:var(--max-w); margin:0 auto; padding:28px 24px 16px;
+  display:flex; flex-direction:column; gap:20px;
+}
+
+/* ── Card ── */
+.card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-lg); padding:24px 28px;
+  box-shadow:var(--shadow-sm);
+}
+
+/* ── Mode bar ── */
+.mode-bar {
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  padding:16px 20px; border-radius:var(--radius);
+}
+.mode-bar select {
+  padding:9px 14px; border:1px solid var(--border); border-radius:var(--radius-sm);
+  font-size:14px; font-family:var(--font-sans); background:var(--surface);
+  color:var(--text); cursor:pointer; min-width:240px;
+  appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6966' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 12px center; padding-right:36px;
+}
+.mode-bar select:focus { outline:2px solid var(--accent); outline-offset:2px; }
+.mode-bar .btn-primary {
+  padding:9px 20px; border:none; border-radius:20px;
+  background:var(--text); color:#fff; cursor:pointer;
+  font-size:14px; font-family:var(--font-sans); font-weight:500;
+  transition:all .18s;
+}
+.mode-bar .btn-primary:hover { background:#2d2d2b; transform:translateY(-1px); }
+.mode-bar .btn-outline {
+  padding:9px 20px; border:1px solid var(--border); border-radius:20px;
+  background:var(--surface); color:var(--text); cursor:pointer;
+  font-size:14px; font-family:var(--font-sans); transition:all .18s;
+}
+.mode-bar .btn-outline:hover { border-color:var(--text); background:var(--bg); }
+
+/* ── Scoring toggle ── */
+.scoring-toggle {
+  display:flex; gap:2px; padding:6px; border-radius:var(--radius);
+  background:var(--bg); border:1px solid var(--border);
+}
+.scoring-toggle button {
+  flex:1; padding:9px 14px; border:none; border-radius:8px;
+  background:transparent; color:var(--text-sub); cursor:pointer;
+  font-size:14px; font-family:var(--font-sans); transition:all .18s;
+}
+.scoring-toggle button.active {
+  background:var(--surface); color:var(--text); font-weight:500;
+  box-shadow:var(--shadow-sm);
+}
+
+/* ── Question card ── */
+.q-card { padding:28px 32px; }
+.q-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:20px;
+}
+.q-num { font-size:13px; color:var(--text-muted); letter-spacing:.02em; }
+.q-type-tag {
+  font-size:11px; padding:3px 10px; border-radius:12px;
+  background:var(--bg); color:var(--text-sub); font-weight:500;
+  letter-spacing:.03em; text-transform:uppercase;
+}
+.q-type-tag.tf { background:var(--accent-bg); color:var(--accent); }
+.q-stem {
+  font-family:var(--font-serif); font-size:20px; line-height:1.55;
+  margin-bottom:24px; font-weight:500; color:var(--text);
+}
+
+/* ── Options ── */
+.options { display:flex; flex-direction:column; gap:10px; }
+.opt {
+  padding:14px 18px; border:1.5px solid var(--border); border-radius:var(--radius);
+  cursor:pointer; transition:all .15s; font-size:15px; line-height:1.55;
+  display:flex; align-items:flex-start; gap:12px; background:var(--surface);
+}
+.opt:hover { border-color:var(--accent); background:var(--accent-bg); }
+.opt.selected {
+  border-color:var(--text); background:#f5f5f4;
+  box-shadow:inset 0 0 0 1px var(--text);
+}
+.opt.correct-reveal {
+  border-color:var(--correct); background:var(--correct-bg);
+}
+.opt.wrong {
+  border-color:var(--wrong); background:var(--wrong-bg);
+}
+.opt .opt-letter {
+  font-weight:600; min-width:26px; color:var(--text-muted);
+  font-size:14px; line-height:1.55;
+}
+.opt.correct-reveal .opt-letter { color:var(--correct); }
+.opt.wrong .opt-letter { color:var(--wrong); }
+
+/* ── Explanation ── */
+.explanation {
+  margin-top:20px; padding:20px 22px; background:var(--bg);
+  border-radius:var(--radius); border:1px solid var(--border);
+  font-size:15px; line-height:1.75; display:none;
+}
+.explanation.show { display:block; }
+.explanation .exp-label {
+  font-weight:600; color:var(--correct); margin-bottom:8px;
+  font-size:15px;
+}
+.explanation .exp-ai {
+  font-size:12px; color:var(--text-muted); margin-top:12px;
+  padding-top:10px; border-top:1px solid var(--border);
+}
+
+/* ── Batch result ── */
+.batch-result {
+  margin-top:0; padding:24px; background:var(--bg);
+  border-radius:var(--radius); border:1px solid var(--border); display:none;
+}
+.batch-result.show { display:block; }
+.batch-result .score { font-size:36px; font-weight:600; text-align:center; font-family:var(--font-serif); }
+
+/* ── Sidebar (stats panel) ── */
+.sidebar {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:16px;
+}
+.sidebar .card { padding:20px 24px; }
+.sidebar .card h3 {
+  font-size:13px; font-weight:600; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:.05em; margin-bottom:14px;
+  border-bottom:none; padding-bottom:0;
+}
+
+.stat-row {
+  display:flex; justify-content:space-between; padding:5px 0;
+  font-size:14px; color:var(--text-sub);
+}
+.stat-row .val { font-weight:600; color:var(--text); }
+.stat-row .val.good { color:var(--correct); }
+.stat-row .val.bad { color:var(--wrong); }
+
+.progress-bar-outer {
+  height:6px; background:var(--border); border-radius:3px;
+  margin-top:10px; overflow:hidden;
+}
+.progress-bar-inner {
+  height:100%; background:var(--text); border-radius:3px; transition:width .4s ease;
+}
+
+/* ── Wrong book items ── */
+.wrong-item {
+  padding:8px 0; border-bottom:1px solid var(--border-lt);
+  font-size:13px; cursor:pointer; color:var(--text-sub); transition:color .15s;
+}
+.wrong-item:hover { color:var(--accent); }
+.wrong-item .w-tag {
+  font-size:10px; padding:2px 7px; border-radius:10px; margin-left:6px;
+  font-weight:500;
+}
+.wrong-item .w-tag.mastered { background:var(--correct-bg); color:var(--correct); }
+.wrong-item .w-tag.unmastered { background:var(--wrong-bg); color:var(--wrong); }
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  max-width:var(--max-w); margin:0 auto; padding:0 24px 32px;
+  display:flex; justify-content:center; align-items:center; gap:16px;
+}
+.bottom-nav button {
+  padding:10px 24px; border:1px solid var(--border); border-radius:20px;
+  background:var(--surface); color:var(--text); cursor:pointer;
+  font-size:14px; font-family:var(--font-sans); transition:all .18s;
+}
+.bottom-nav button:hover:not(:disabled) { border-color:var(--text); }
+.bottom-nav button:disabled { opacity:.3; cursor:not-allowed; }
+.bottom-nav .nav-progress { font-size:14px; color:var(--text-muted); min-width:60px; text-align:center; }
+
+/* ── Toast ── */
+.toast {
+  position:fixed; bottom:32px; left:50%; transform:translateX(-50%); z-index:999;
+  background:var(--text); color:#fff; padding:10px 24px; border-radius:20px;
+  font-size:14px; opacity:0; transition:opacity .3s; pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.15);
+}
+.toast.show { opacity:1; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:200;
+  display:flex; align-items:center; justify-content:center; display:none;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.show { display:flex; }
+.modal-box {
+  background:var(--surface); border-radius:var(--radius-lg); padding:28px 32px;
+  max-width:420px; width:90%; box-shadow:0 16px 48px rgba(0,0,0,.12);
+  border:1px solid var(--border);
+}
+.modal-box h3 { font-family:var(--font-serif); font-size:20px; margin-bottom:10px; }
+.modal-box p { font-size:15px; color:var(--text-sub); margin-bottom:20px; line-height:1.65; }
+.modal-box .modal-btns { display:flex; gap:10px; justify-content:flex-end; }
+.modal-box .modal-btns button {
+  padding:9px 20px; border-radius:20px; border:1px solid var(--border);
+  cursor:pointer; font-size:14px; font-family:var(--font-sans); transition:all .18s;
+}
+.modal-box .btn-danger { background:var(--wrong); color:#fff; border-color:var(--wrong); }
+.modal-box .btn-danger:hover { background:#991b1b; }
+.modal-box .btn-cancel { background:var(--surface); color:var(--text); }
+.modal-box .btn-cancel:hover { background:var(--bg); }
+
+/* ── Settings buttons ── */
+.settings-btn {
+  width:100%; margin-bottom:8px; padding:9px 16px;
+  border:1px solid var(--border); border-radius:20px;
+  background:var(--surface); color:var(--text); cursor:pointer;
+  font-size:13px; font-family:var(--font-sans); transition:all .18s; text-align:center;
+}
+.settings-btn:hover { border-color:var(--text); background:var(--bg); }
+.settings-btn.danger:hover { border-color:var(--wrong); color:var(--wrong); background:var(--wrong-bg); }
+
+/* ── Empty state ── */
+.empty-state { text-align:center; padding:48px 24px; color:var(--text-muted); }
+.empty-state .empty-icon { font-size:40px; margin-bottom:12px; }
+.empty-state p { font-size:15px; }
+
+/* ── Responsive ── */
+@media (max-width:800px) {
+  .sidebar { grid-template-columns:1fr; }
+  .q-card { padding:20px; }
+  .q-stem { font-size:18px; }
+  .topbar .nav button { padding:6px 12px; font-size:13px; }
+  .topbar .logo { font-size:16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ Top Bar ═══════════════ -->
+<header class="topbar">
+  <span class="logo">人体解剖学 · 刷题</span>
+  <nav class="nav">
+    <button id="navSingle" class="active" onclick="switchMode('single')">单一题库</button>
+    <button id="navAll" onclick="switchMode('all')">全题库乱序</button>
+    <button id="navWrong" onclick="switchMode('wrong')">错题练习</button>
+  </nav>
+</header>
+
+<!-- ═══════════════ Main ═══════════════ -->
+<main class="main" id="contentArea">
+
+  <!-- Mode bar -->
+  <div class="card mode-bar" id="modeBar">
+    <select id="bankSelect" onchange="onBankChange()"></select>
+    <button class="btn-outline" onclick="restartCurrent()">重新开始</button>
+    <button class="btn-primary" id="btnSubmitAll" onclick="submitAll()" style="display:none;">提交整组判分</button>
+  </div>
+
+  <!-- Scoring toggle -->
+  <div class="card scoring-toggle" id="scoringToggle">
+    <button id="scInstant" class="active" onclick="setScoring('instant')">即时判分</button>
+    <button id="scBatch" onclick="setScoring('batch')">整组判分</button>
+  </div>
+
+  <!-- Question -->
+  <div class="card q-card" id="questionCard">
+    <div id="questionArea">
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <p>请选择题库开始刷题</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch result -->
+  <div class="card batch-result" id="batchResult">
+    <div class="score" id="batchScore"></div>
+    <p style="text-align:center;color:var(--text-sub);margin-top:8px;" id="batchDetail"></p>
+  </div>
+
+  <!-- Sidebar (stats) -->
+  <div class="sidebar" id="sidebar">
+    <div class="card">
+      <h3>统计</h3>
+      <div class="stat-row"><span>总正确率</span><span class="val" id="statOverall">-</span></div>
+      <div class="stat-row"><span>总答题数</span><span class="val" id="statTotal">0</span></div>
+      <div class="stat-row"><span>错题本</span><span class="val bad" id="statWrongCount">0</span></div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar" style="width:0%"></div></div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:8px;" id="progressLabel">完成度 0%</p>
+    </div>
+    <div class="card">
+      <h3>各题库正确率</h3>
+      <div id="bankStats"></div>
+    </div>
+    <div class="card">
+      <h3>错题本</h3>
+      <div id="wrongList"><p style="font-size:13px;color:var(--text-sub);">暂无错题</p></div>
+    </div>
+    <div class="card">
+      <h3>设置</h3>
+      <button class="settings-btn" onclick="confirmReset('progress')">重置全部进度</button>
+      <button class="settings-btn danger" onclick="confirmReset('wrong')">清空错题本</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav" id="navButtons">
+  <button id="btnPrev" onclick="goPrev()">← 上一题</button>
+  <span class="nav-progress" id="navProgress"></span>
+  <button id="btnNext" onclick="goNext()">下一题 →</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <p id="modalMsg"></p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-danger" id="modalConfirmBtn" onclick="">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// 题库数据（已清洗，含答案与解析）
+// ═══════════════════════════════════════════
+const QUIZ_BANKS = [
+  {
+    id: "motion",
+    name: "运动系统（骨骼、骨连结、肌肉）",
+    questions: [
+      { type:"single", stem:"肱骨属：", options:["长骨","短骨","扁骨","不规则骨"], answer:0, exp:"肱骨呈长管状，两端膨大、中间为骨干，具备长骨的典型特征（一体两端），故属于长骨。长骨主要分布于四肢，起支持和杠杆作用。" },
+      { type:"single", stem:"终生存在红骨髓的骨是：", options:["肱骨","股骨","髂骨","尺骨"], answer:2, exp:"髂骨属于扁骨，扁骨的板障内终生保留红骨髓，具有造血功能。长骨（如肱骨、股骨）成年后骨髓腔内的红骨髓被黄骨髓取代，失去造血能力。" },
+      { type:"single", stem:"关节的基本结构，不包括：", options:["关节面","韧带","关节囊","关节腔"], answer:1, exp:"关节的基本结构包括关节面、关节囊和关节腔，这三者是每个关节必须具备的结构。韧带属于关节的辅助结构，不是基本结构——有些关节可以没有韧带。" },
+      { type:"single", stem:"属于膝关节的辅助结构的是：", options:["股骨的髌面","胫骨上端","膝关节囊","内、外侧半月板"], answer:3, exp:"半月板是膝关节特有的辅助结构，位于股骨和胫骨之间，起缓冲和稳定作用。股骨的髌面和胫骨上端属于关节面（基本结构），关节囊也是基本结构。" },
+      { type:"single", stem:"属于脑颅骨的是：", options:["上颌骨","下颌骨","颞骨","颧骨"], answer:2, exp:"脑颅骨共8块，包括额骨、顶骨（2块）、枕骨、颞骨（2块）、蝶骨、筛骨，它们围成颅腔容纳脑。上颌骨、下颌骨、颧骨均属于面颅骨。" },
+      { type:"single", stem:"属于面颅骨的是：", options:["额骨","蝶骨","筛骨","上颌骨"], answer:3, exp:"面颅骨共15块，上颌骨是其中最大的一对，构成面部中央的骨性基础。额骨、蝶骨、筛骨均属于脑颅骨。" },
+      { type:"single", stem:"翼点位于：", options:["颞窝","颅前窝","颅后窝","垂体窝"], answer:0, exp:"翼点位于颞窝内，是额骨、顶骨、颞骨和蝶骨四骨交汇处，呈\u2018H\u2019形。此处骨质最薄，内面有脑膜中动脉前支经过，外伤时易损伤该动脉导致硬膜外血肿。" },
+      { type:"single", stem:"观察椎骨时，有横突孔，该椎骨为：", options:["颈椎","胸椎","腰椎","骶椎"], answer:0, exp:"横突孔是颈椎的特征性结构，位于横突上，内有椎动、静脉通过。胸椎的特征是有肋凹，腰椎的特征是椎体粗大、棘突呈板状水平向后。" },
+      { type:"single", stem:"观察椎骨时，有肋凹，该椎骨为：", options:["颈椎","胸椎","腰椎","骶椎"], answer:1, exp:"肋凹是胸椎的特征性结构，位于椎体侧面和横突末端，与肋骨小头和肋结节相关节。颈椎有横突孔，腰椎无肋凹和横突孔。" },
+      { type:"single", stem:"第一颈椎，又称：", options:["寰椎","枢椎","隆椎","齿椎"], answer:0, exp:"第一颈椎称寰椎，呈环形，无椎体和棘突，由前弓、后弓和两个侧块组成。它与枕骨构成寰枕关节，与第二颈椎（枢椎）构成寰枢关节，使头部可做点头和旋转运动。" },
+      { type:"single", stem:"第七颈椎，又称：", options:["寰椎","枢椎","隆椎","齿椎"], answer:2, exp:"第七颈椎称隆椎，其棘突特别长且不分叉，在颈后部皮下可清楚触及，是临床上计数椎骨序数的重要体表标志。" },
+      { type:"single", stem:"计数肋的重要标志，不包括：", options:["胸骨角","肩胛上角","肩胛冈","肩胛下角"], answer:2, exp:"胸骨角平对第2肋，肩胛上角平对第2肋，肩胛下角平对第7肋，这三者都是计数肋骨的重要体表标志。肩胛冈位于肩胛骨背面，不用于计数肋骨。" },
+      { type:"single", stem:"属前臂外侧的骨是：", options:["肱骨","桡骨","尺骨","股骨"], answer:1, exp:"前臂由桡骨和尺骨组成。在解剖学姿势下，桡骨位于前臂外侧（拇指侧），尺骨位于前臂内侧（小指侧）。肱骨位于上臂，股骨位于大腿。" },
+      { type:"single", stem:"有桡神经沟和三角肌粗隆的骨为：", options:["肱骨","桡骨","尺骨","股骨"], answer:0, exp:"肱骨体中部后面有桡神经沟，桡神经和肱深动脉沿此沟走行，肱骨骨折时易损伤桡神经。肱骨体外侧有三角肌粗隆，是三角肌的附着点。" },
+      { type:"single", stem:"全身最灵活的关节是：", options:["膝关节","踝关节","肩关节","腕关节"], answer:2, exp:"肩关节是典型的球窝关节，肱骨头大、关节盂浅而小，关节囊松弛，运动范围最大，可做屈伸、收展、旋转和环转运动，是全身最灵活的关节。但灵活性以牺牲稳定性为代价，故肩关节也最容易脱位。" },
+      { type:"single", stem:"有大转子和小转子的骨是：", options:["股骨","胫骨","腓骨","髋骨"], answer:0, exp:"股骨上端有球形的股骨头，头下方外侧有大转子、后内侧有小转子，两者之间前面有转子间线、后面有转子间嵴。大转子是重要的体表标志，可在髋外侧触及。" },
+      { type:"single", stem:"髂骨、耻骨和坐骨三骨会合于：", options:["髂窝","髋臼","闭孔","耻骨联合"], answer:1, exp:"髋骨由髂骨、耻骨和坐骨三骨融合而成，三骨在髋臼处会合。髋臼是髋关节窝，与股骨头构成髋关节。16岁前三骨之间为软骨结合，成年后骨性融合。" },
+      { type:"single", stem:"最大的籽骨是：", options:["髌骨","胫骨","髋骨","肩胛骨"], answer:0, exp:"髌骨是人体最大的籽骨，位于股四头肌腱内，呈三角形，前面粗糙、后面光滑与股骨的髌面相关节。髌骨可保护膝关节、增加股四头肌的力臂。" },
+      { type:"single", stem:"关节内有前、后交叉韧带，该关节为：", options:["髋关节","膝关节","肩关节","肘关节"], answer:1, exp:"膝关节囊内有前交叉韧带和后交叉韧带，两者相互交叉呈\u2018X\u2019形，是膝关节特有的囊内韧带，对维持膝关节的稳定起关键作用。前交叉韧带防止胫骨前移，后交叉韧带防止胫骨后移。" },
+      { type:"single", stem:"在体外可触及的人体骨性标志，下列结构哪个不属于：", options:["枕外隆突","外踝","股骨小转子","髂前上棘"], answer:2, exp:"股骨小转子位于股骨上端后内侧，被厚厚的肌肉（髂腰肌等）覆盖，位置深在，无法在体表触及。枕外隆突（枕部正中）、外踝（踝外侧）、髂前上棘（髋前上方）均为常用体表标志。" },
+      { type:"single", stem:"肌的辅助装置不包括：", options:["肌腹","筋膜","滑膜囊","腱鞘"], answer:0, exp:"肌腹是肌的主体部分，由肌纤维构成，具有收缩功能，不属于辅助装置。肌的辅助装置包括筋膜（分隔和保护肌）、滑膜囊（减少摩擦）和腱鞘（约束肌腱）。" },
+      { type:"single", stem:"斜方肌属：", options:["颈肌","背肌","腹肌","上肢肌"], answer:1, exp:"斜方肌位于项部和背上部，起于枕外隆突、项韧带和全部胸椎棘突，止于锁骨外侧1/3、肩峰和肩胛冈，属于背肌浅层。其功能为拉肩胛骨向脊柱靠拢，上部纤维可上提肩胛骨。" },
+      { type:"single", stem:"胸腔和腹腔之间的肌，称：", options:["膈","胸大肌","腹直肌","腹外斜肌"], answer:0, exp:"膈是分隔胸腔和腹腔的穹窿状扁肌，是主要的呼吸肌。膈收缩时穹窿下降、胸腔容积增大，引起吸气；舒张时穹窿上升、胸腔容积减小，引起呼气。膈上有三个裂孔：主动脉裂孔、食管裂孔和腔静脉孔。" },
+      { type:"single", stem:"肱二头肌属：", options:["肩肌","臂肌","前臂肌","大腿肌"], answer:1, exp:"肱二头肌位于上臂前群，属臂肌。起端有长、短两个头，止于桡骨粗隆。主要功能为屈肘关节和使前臂旋后，是强有力的屈肘肌。" },
+      { type:"single", stem:"股四头肌属：", options:["髋肌","大腿肌","小腿肌","前臂肌"], answer:1, exp:"股四头肌位于大腿前面，属大腿肌前群，是全身最大的肌。由股直肌、股内侧肌、股外侧肌和股中间肌四部分组成，向下汇成髌韧带止于胫骨粗隆。主要功能为伸膝关节，股直肌还可屈髋关节。" },
+      { type:"single", stem:"久坐不运动，可出现该肌肉水肿，导致坐骨神经受压，引起坐骨神经痛的肌肉为：", options:["臀大肌","股二头肌","梨状肌","小腿三头肌"], answer:2, exp:"梨状肌起于骶骨前面，向外穿坐骨大孔止于股骨大转子。坐骨神经通常从梨状肌下孔穿出，约15%~30%的人坐骨神经或其分支穿过梨状肌。梨状肌痉挛或水肿时可压迫坐骨神经，引起梨状肌综合征，表现为坐骨神经痛。" },
+      { type:"single", stem:"颈椎的主要特征：", options:["棘突水平向后","棘突呈板状","有横突孔","有肋凹"], answer:2, exp:"有横突孔是颈椎区别于其他椎骨的特征性标志。棘突水平向后是腰椎的特征，棘突呈板状也是腰椎的特征，有肋凹是胸椎的特征。" },
+      { type:"single", stem:"椎体间的连结：", options:["前纵韧带","棘上韧带","黄韧带","项韧带"], answer:0, exp:"前纵韧带位于椎体前面，上起枕骨、下至骶骨，紧贴椎体前面，限制脊柱过度后伸。棘上韧带连结棘突尖端，黄韧带连结相邻椎弓板，项韧带是项部的三角形弹性纤维膜。" },
+      { type:"single", stem:"哪块骨不参与胸廓构成：", options:["肩胛骨","胸椎","胸骨","肋骨"], answer:0, exp:"胸廓由12块胸椎、12对肋骨和1块胸骨构成，呈上窄下宽的圆锥形。肩胛骨属于上肢带骨，位于胸廓后方，但不参与胸廓的构成。" },
+      { type:"single", stem:"咀嚼肌：", options:["颊肌","颞肌","舌肌","口轮匝肌"], answer:1, exp:"咀嚼肌包括咬肌、颞肌、翼内肌和翼外肌，均受三叉神经下颌支支配。颞肌起于颞窝，止于下颌骨冠突，收缩时可上提下颌骨（闭口）。颊肌和口轮匝肌属于表情肌，舌肌属舌肌群。" },
+      { type:"tf", stem:"红骨髓有造血功能。", options:["对","错"], answer:0, exp:"红骨髓含有大量不同发育阶段的血细胞，是主要的造血器官。胎儿和婴幼儿时期骨髓均为红骨髓，约5岁后长骨骨髓腔内的红骨髓逐渐被黄骨髓（脂肪组织）取代，但扁骨、不规则骨和长骨骨骺端的红骨髓终生保留造血功能。" },
+      { type:"tf", stem:"肩胛骨属躯干骨。", options:["对","错"], answer:1, exp:"躯干骨包括椎骨、肋骨和胸骨，构成人体的中轴骨架。肩胛骨属于上肢带骨（附肢骨骼），不属于躯干骨。上肢带骨包括锁骨和肩胛骨，将上肢连于躯干。" },
+      { type:"tf", stem:"鼻旁窦共四对，包括额窦、筛窦、上颌窦、下颌窦。", options:["对","错"], answer:1, exp:"鼻旁窦共四对，分别为额窦、筛窦、上颌窦和蝶窦，均开口于鼻腔。\u2018下颌窦\u2019不存在——下颌骨内并无鼻旁窦。蝶窦位于蝶骨体内，是位置最深的鼻旁窦。" },
+      { type:"tf", stem:"隆椎可计数椎骨序数。", options:["对","错"], answer:0, exp:"隆椎（第7颈椎）的棘突特别长，在颈后部皮下可清楚触及，是临床上计数椎骨序数的重要标志。由此向下可依次触及第1~12胸椎棘突。" },
+      { type:"tf", stem:"肋由肋骨与肋软骨组成。", options:["对","错"], answer:0, exp:"肋由肋骨和肋软骨两部分组成。第1~7对肋的肋软骨直接与胸骨相连，称真肋；第8~10对肋的肋软骨依次连于上位肋软骨形成肋弓，称假肋；第11~12对肋前端游离，称浮肋。" }
+    ]
+  },
+  {
+    id: "visceral",
+    name: "内脏学（消化、呼吸、泌尿、生殖）",
+    questions: [
+      { type:"single", stem:"属上消化道器官，不包括：", options:["口腔","咽","食管","小肠"], answer:3, exp:"临床上通常将口腔、咽、食管、胃和十二指肠称为上消化道，空肠、回肠和大肠称为下消化道。小肠（空肠和回肠）属于下消化道。" },
+      { type:"single", stem:"张华同学右侧髂区腹痛、压痛均很明显，请问下列哪个器官最可能发生病变：", options:["肝","胃","阑尾","乙状结肠"], answer:2, exp:"阑尾根部附着于盲肠后内侧壁，其体表投影通常在脐与右髂前上棘连线的中外1/3交点处（McBurney点）。右侧髂区疼痛伴压痛是急性阑尾炎的典型表现。肝位于右季肋区和腹上区，胃位于左季肋区和腹上区，乙状结肠位于左髂区。" },
+      { type:"single", stem:"膀胱位于：", options:["腹上区","右髂区","脐区","耻区"], answer:3, exp:"膀胱位于盆腔前部、耻骨联合后方，在腹部分区中对应耻区（腹下区）。空虚时膀胱完全位于盆腔内，充盈时可上升至耻骨联合以上，此时可在耻区触及。" },
+      { type:"single", stem:"口腔与咽的分界处称：", options:["腭舌弓","咽峡","腭咽弓","舌根"], answer:1, exp:"咽峡是口腔通向咽的门户，由腭垂（悬雍垂）、两侧腭舌弓和舌根共同围成。腭舌弓和腭咽弓之间的凹陷为扁桃体窝，容纳腭扁桃体。" },
+      { type:"single", stem:"乳牙，不包括：", options:["乳切牙","乳尖牙","乳前磨牙","乳磨牙"], answer:2, exp:"乳牙共20颗，包括乳切牙（8颗）、乳尖牙（4颗）和乳磨牙（8颗），没有前磨牙（双尖牙）。前磨牙只在恒牙列中出现，是替换乳磨牙的牙齿。" },
+      { type:"single", stem:"成年后萌出的牙，又称智齿，是：", options:["尖牙","第一磨牙","第二磨牙","第三磨牙"], answer:3, exp:"第三磨牙又称智齿，通常在18~25岁萌出，是口腔中最晚萌出的牙齿。由于现代人颌骨退化，智齿常因位置不足而阻生或萌出不全，需拔除。" },
+      { type:"single", stem:"位于耳廓的前下方的口腔腺是：", options:["下颌下腺","腮腺","舌下腺","唇腺"], answer:1, exp:"腮腺是最大的口腔腺，位于耳廓前下方、咬肌表面和下颌后窝内，其导管（腮腺管）开口于平对上颌第二磨牙的颊黏膜。下颌下腺位于下颌骨体内面，舌下腺位于口底黏膜深面。" },
+      { type:"single", stem:"属鼻咽部结构为：", options:["扁桃体窝","咽隐窝","梨状隐窝","腭扁桃体"], answer:1, exp:"咽隐窝位于鼻咽部侧壁，在咽鼓管圆枕的后上方，是鼻咽癌的好发部位。扁桃体窝和腭扁桃体属口咽部，梨状隐窝属喉咽部。" },
+      { type:"single", stem:"有三个生理性狭窄，不包括哪个器官：", options:["食管","输尿管","男性尿道","输精管"], answer:3, exp:"食管有三个狭窄（起始处、与左主支气管交叉处、穿膈处），输尿管有三个狭窄（肾盂移行处、跨髂血管处、穿膀胱壁处），男性尿道有三个狭窄（尿道内口、尿道膜部、尿道外口）。输精管管腔细小但无三个生理性狭窄的说法。" },
+      { type:"single", stem:"胃的出口，称：", options:["贲门","幽门","胃体","胃底"], answer:1, exp:"胃的入口称贲门，与食管相连；出口称幽门，与十二指肠相连。幽门处有幽门括约肌，控制胃内容物排入十二指肠的速度。胃体是胃的主体部分，胃底是贲门平面以上向左上膨出的部分。" },
+      { type:"single", stem:"小肠，不包括：", options:["空肠","十二指肠","回肠","阑尾"], answer:3, exp:"小肠包括十二指肠、空肠和回肠三部分，是消化和吸收的主要场所。阑尾是从盲肠后内侧壁突出的蚓状盲管，属于大肠的一部分，不属于小肠。" },
+      { type:"single", stem:"十二指肠大乳头位于十二指肠：", options:["上部","降部","水平部","升部"], answer:1, exp:"十二指肠大乳头位于十二指肠降部后内侧壁，是胆总管和胰管的共同开口处，胆汁和胰液经此排入十二指肠。十二指肠分为上部、降部、水平部和升部四部分。" },
+      { type:"single", stem:"产生胆汁的器官是：", options:["肝脏","胆囊","胆总管","胰腺"], answer:0, exp:"胆汁由肝细胞分泌产生，经肝内胆管\u2192肝左、右管\u2192肝总管\u2192胆囊管进入胆囊储存和浓缩。进食后胆囊收缩，胆汁经胆囊管\u2192胆总管\u2192十二指肠大乳头排入肠道。胆囊只储存和浓缩胆汁，不产生胆汁。" },
+      { type:"single", stem:"胆总管和胰管的开口部位是：", options:["十二指肠球","十二指肠大乳头","十二指肠空肠曲","十二指肠水平部"], answer:1, exp:"胆总管和胰管汇合后开口于十二指肠大乳头，位于十二指肠降部后内侧壁。十二指肠球是十二指肠上部近幽门处的膨大部分，是十二指肠溃疡的好发部位。" },
+      { type:"single", stem:"输胆管道，不包括：", options:["肝左、右管","胆总管","胰管","胆囊"], answer:2, exp:"输胆管道包括肝左管、肝右管、肝总管、胆囊管、胆总管和胆囊，负责将肝产生的胆汁输送至十二指肠。胰管属于胰的排泄管道，输送胰液，不属于输胆管道系统。" },
+      { type:"single", stem:"上呼吸道，不包括：", options:["鼻","气管","咽","喉"], answer:1, exp:"临床上将鼻、咽、喉称为上呼吸道，气管和各级支气管称为下呼吸道。气管起于环状软骨下缘（约第6颈椎水平），在胸骨角平面分为左、右主支气管，属于下呼吸道。" },
+      { type:"single", stem:"喉软骨，不包括：", options:["会厌软骨","环状软骨","气管软骨","甲状软骨"], answer:2, exp:"喉软骨包括甲状软骨、环状软骨、会厌软骨和一对杓状软骨。气管软骨是\u2018C\u2019形透明软骨环，位于气管壁内，不属于喉软骨。" },
+      { type:"single", stem:"成对的喉软骨，是：", options:["甲状软骨","环状软骨","杓状软骨","会厌软骨"], answer:2, exp:"喉软骨中甲状软骨、环状软骨和会厌软骨均为单块（不成对），只有杓状软骨成对（左右各一）。杓状软骨位于环状软骨板上方，声带的后端附着于此。" },
+      { type:"single", stem:"下列描述，错误的是：", options:["左支气管细长，右支气管粗短","左肺分三叶，右肺分为二叶","肺的内侧面凹陷称肺门","出入肺门的结构被结缔组织包绕称肺根"], answer:1, exp:"左肺被斜裂分为上、下两叶，右肺被斜裂和水平裂分为上、中、下三叶。选项B说反了——正确应为\u2018左肺分二叶，右肺分三叶\u2019。左支气管细长倾斜、右支气管粗短陡直是正确的。" },
+      { type:"single", stem:"储存尿液的器官是：", options:["肾","输尿管","尿道","膀胱"], answer:3, exp:"膀胱是储存尿液的肌性囊状器官，位于盆腔前部。肾产生尿液，输尿管输送尿液至膀胱，尿道将尿液排出体外。膀胱的容量成人约300~500ml，最大可达800ml。" },
+      { type:"single", stem:"肾窦内的结构，不包括：", options:["肾小盏","肾大盏","肾盂","肾柱"], answer:3, exp:"肾窦是肾门向肾内凹陷形成的腔隙，内含肾小盏、肾大盏、肾盂、肾血管和脂肪等。肾柱是肾皮质伸入肾锥体之间的部分，属于肾实质而非肾窦内容物。" },
+      { type:"single", stem:"肾门的结构，不包括：", options:["肾血管","肾盂","输尿管","出入的神经"], answer:2, exp:"肾门是肾内侧缘中部的凹陷，有肾动脉、肾静脉、肾盂、神经和淋巴管出入。输尿管在肾门外起于肾盂，向下走行，不属于肾门内的结构。" },
+      { type:"single", stem:"不属于肾髓质的结构：", options:["肾锥体","肾柱","肾乳头","肾小盏"], answer:1, exp:"肾髓质由15~20个肾锥体组成，肾锥体的尖端称肾乳头，肾小盏包绕肾乳头。肾柱是肾皮质伸入相邻肾锥体之间的部分，属于肾皮质而非肾髓质。" },
+      { type:"single", stem:"输精管道，不包括：", options:["附睾","输精管","前列腺","射精管"], answer:2, exp:"输精管道包括附睾、输精管、射精管和尿道，负责输送精子。前列腺属于男性生殖附属腺，分泌前列腺液参与构成精液，不属于输精管道。" },
+      { type:"single", stem:"产生精子的器官是：", options:["睾丸","附睾","前列腺","精囊腺"], answer:0, exp:"睾丸是男性的生殖腺，其曲细精管上皮产生精子，间质细胞分泌雄激素（睾酮）。附睾储存和促进精子成熟，前列腺和精囊腺分泌精浆。" },
+      { type:"single", stem:"不成对的生殖器是：", options:["睾丸","前列腺","精囊腺","尿道球腺"], answer:1, exp:"前列腺是不成对的实质性器官，位于膀胱下方、直肠前方，包绕尿道起始部。睾丸、精囊腺和尿道球腺均为成对器官（左右各一）。" },
+      { type:"single", stem:"男性生殖附属腺，不包括：", options:["精囊腺","前列腺","前庭大腺","尿道球腺"], answer:2, exp:"男性生殖附属腺包括精囊腺、前列腺和尿道球腺。前庭大腺（Bartholin腺）是女性生殖附属腺，位于阴道口两侧，不属于男性生殖系统。" },
+      { type:"single", stem:"男性的外生殖器是：", options:["睾丸","输精管","阴茎","前列腺"], answer:2, exp:"男性外生殖器包括阴茎和阴囊。睾丸位于阴囊内，但属于内生殖器（生殖腺）。输精管和前列腺均属内生殖器。" },
+      { type:"single", stem:"易产生喉水肿的部位是：", options:["喉前庭","喉室","喉中间腔","声门下腔"], answer:3, exp:"声门下腔位于声襞与环状软骨下缘之间，其黏膜下组织疏松，炎症时极易发生水肿。小儿喉腔狭小，声门下腔水肿可迅速引起喉阻塞，导致呼吸困难，需紧急处理。" },
+      { type:"single", stem:"男性尿道有三个狭窄，不包括：", options:["尿道内口","尿道海绵体部","尿道膜部","尿道外口"], answer:1, exp:"男性尿道三个狭窄分别位于尿道内口、尿道膜部和尿道外口，其中尿道外口最窄。尿道海绵体部（尿道阴茎部）是尿道最长的部分，管腔较宽，不属于狭窄部位。" },
+      { type:"single", stem:"女性的生殖腺是：", options:["卵巢","子宫","输卵管","阴道"], answer:0, exp:"卵巢是女性的生殖腺，产生卵子和分泌女性激素（雌激素和孕激素）。子宫是孕育胎儿的器官，输卵管输送卵子，阴道是性交器官和分娩通道。" },
+      { type:"single", stem:"女性内生殖器，不包括：", options:["卵巢","子宫","阴道","女阴"], answer:3, exp:"女性内生殖器包括卵巢、输卵管、子宫和阴道。女阴（外阴）属于女性外生殖器，包括阴阜、大阴唇、小阴唇、阴蒂和阴道前庭等结构。" },
+      { type:"single", stem:"月经通过什么途径排出体外？", options:["从宫颈口到阴道口","从宫颈口到尿道口","从阴道口到尿道口","从尿道口到阴道口"], answer:0, exp:"月经是子宫内膜周期性脱落出血，经子宫颈口\u2192阴道\u2192阴道口排出体外。尿道口是排尿的出口，与月经排出无关。" },
+      { type:"single", stem:"女性输卵管结扎部位是：", options:["输卵管子宫部","漏斗部","壶腹部","峡部"], answer:3, exp:"输卵管峡部是输卵管最细的部分，位于子宫部与壶腹部之间，管壁厚、管腔窄，是临床上输卵管结扎术的首选部位。壶腹部是受精的常见部位，漏斗部末端有输卵管伞。" },
+      { type:"single", stem:"子宫的位置，错误的是：", options:["骨盆的中央","膀胱和直肠之间","两侧有输卵管","下接阴道"], answer:3, exp:"子宫下端（子宫颈下端）并不直接\u2018下接\u2019阴道——子宫颈的下1/3伸入阴道内，称为子宫颈阴道部，而阴道包绕子宫颈形成阴道穹。严格来说子宫颈插入阴道，而非\u2018下接\u2019。正常子宫呈前倾前屈位，位于骨盆中央、膀胱与直肠之间。" },
+      { type:"tf", stem:"直肠不直，有弯曲。", options:["对","错"], answer:0, exp:"直肠在矢状面上有两个弯曲：骶曲（凸向后，沿骶骨前面）和会阴曲（凸向前，绕尾骨尖）。在冠状面上也有三个侧弯。这些弯曲在直肠镜检和灌肠操作中需注意，以免损伤肠壁。" },
+      { type:"tf", stem:"阑尾属于大肠。", options:["对","错"], answer:0, exp:"阑尾是从盲肠后内侧壁突出的蚓状盲管，属于大肠的一部分。大肠包括盲肠（含阑尾）、结肠（升结肠、横结肠、降结肠、乙状结肠）、直肠和肛管。" },
+      { type:"tf", stem:"胆汁是由胆囊产生。", options:["对","错"], answer:1, exp:"胆汁由肝细胞分泌产生，胆囊仅储存和浓缩胆汁。进食后，在神经和体液调节下胆囊收缩、Oddi括约肌舒张，胆汁排入十二指肠参与脂肪的消化和吸收。" },
+      { type:"tf", stem:"睾丸为外生殖器。", options:["对","错"], answer:1, exp:"睾丸是男性的生殖腺，属于内生殖器。男性外生殖器包括阴茎和阴囊（睾丸位于阴囊内，但分类上属内生殖器）。内生殖器包括生殖腺（睾丸）、输精管道和附属腺。" },
+      { type:"tf", stem:"左、右两侧胸膜腔相交通。", options:["对","错"], answer:1, exp:"左、右胸膜腔是独立的密闭腔隙，互不相通。这一解剖特点具有重要临床意义：一侧气胸或胸腔积液不会直接影响对侧，单侧病变时健侧肺仍可正常呼吸。" },
+      { type:"tf", stem:"子宫保持前倾前屈位。", options:["对","错"], answer:0, exp:"正常成年女性子宫呈前倾前屈位。前倾指子宫长轴与阴道长轴之间形成向前开放的约90\u00b0角；前屈指子宫体与子宫颈之间形成向前开放的约170\u00b0角。子宫的正常位置依赖盆底肌、子宫韧带和周围器官的支撑。" }
+    ]
+  },
+  {
+    id: "vascular",
+    name: "脉管学（心血管、淋巴）",
+    questions: [
+      { type:"single", stem:"心血管系统的组成，不包括：", options:["心","毛细血管","淋巴管","静脉"], answer:2, exp:"心血管系统由心、动脉、毛细血管和静脉组成。淋巴管属于淋巴系统，是一个独立的管道系统，负责回收组织液和参与免疫。" },
+      { type:"single", stem:"心的上方出入的大血管，不包括：", options:["肺动脉干","升主动脉","下腔静脉","上腔静脉"], answer:2, exp:"心的上方有肺动脉干（发自右心室）、升主动脉（发自左心室）和上腔静脉（注入右心房）。下腔静脉从下方穿过膈的腔静脉孔注入右心房，不从上方出入心。" },
+      { type:"single", stem:"心的后方结构有：", options:["上腔静脉","胸主动脉","升主动脉","肺动脉干"], answer:1, exp:"心的后方主要有胸主动脉、食管和迷走神经等结构。上腔静脉位于心的右侧，升主动脉和肺动脉干位于心的前方上方。" },
+      { type:"single", stem:"心房和心室之间的界沟称：", options:["前室间沟","冠状沟","后室间沟","房间沟"], answer:1, exp:"冠状沟（房室沟）是心房和心室在心表面的分界标志，内有冠状血管走行。前室间沟和后室间沟是左、右心室的分界，房间沟是左、右心房的分界。" },
+      { type:"single", stem:"卵圆窝属哪个心腔结构：", options:["右心房","右心室","左心房","左心室"], answer:0, exp:"卵圆窝位于房间隔右心房侧的下部，是胎儿时期卵圆孔闭合后的遗迹。出生后肺循环建立，左心房压力升高使卵圆孔瓣关闭，若未闭合则形成房间隔缺损。" },
+      { type:"single", stem:"右房室口瓣膜称：", options:["二尖瓣","三尖瓣","主动脉瓣","肺动脉瓣"], answer:1, exp:"右房室口周缘附有三尖瓣（前瓣、后瓣和隔瓣），通过腱索连于乳头肌，防止心室收缩时血液逆流回右心房。左房室口为二尖瓣，主动脉口为主动脉瓣，肺动脉口为肺动脉瓣。" },
+      { type:"single", stem:"左房室口瓣膜称：", options:["二尖瓣","三尖瓣","主动脉瓣","肺动脉瓣"], answer:0, exp:"左房室口周缘附有二尖瓣（前瓣和后瓣），是左心房和左心室之间的瓣膜。二尖瓣在心室收缩时关闭，防止血液逆流回左心房；心室舒张时开放，使血液从左心房流入左心室。" },
+      { type:"single", stem:"正常心的起搏点是：", options:["窦房结","房室结","房室束","Purkinje纤维网"], answer:0, exp:"窦房结位于上腔静脉与右心房交界处的心外膜深面，是心的正常起搏点，自律性最高（约60~100次/分）。兴奋由窦房结发出\u2192心房肌\u2192房室结\u2192房室束\u2192Purkinje纤维网\u2192心室肌。" },
+      { type:"single", stem:"营养心的动脉血管是：", options:["升主动脉","主动脉弓","胸主动脉","冠状动脉"], answer:3, exp:"冠状动脉是营养心的专用动脉，分为左、右冠状动脉，均发自升主动脉起始部。左冠状动脉主要供应左心房、左心室和室间隔前部，右冠状动脉主要供应右心房、右心室和窦房结等。" },
+      { type:"single", stem:"动脉韧带是位于哪二者之间？", options:["左、右肺动脉之间","肺动脉与上腔静脉之间","肺动脉干与主动脉弓之间","肺动脉与胸主动脉之间"], answer:2, exp:"动脉韧带是连接肺动脉干分叉处与主动脉弓下缘之间的纤维束，是胎儿时期动脉导管闭合后的遗迹。动脉导管在胎儿期将肺动脉血导入主动脉，出生后闭锁。若未闭合则形成动脉导管未闭。" },
+      { type:"single", stem:"感受血压变化的结构是：", options:["主动脉体","颈动脉窦","颈动脉体","动脉韧带"], answer:1, exp:"颈动脉窦是颈内动脉起始部的膨大，窦壁内有压力感受器，感受血压变化，通过反射调节心率和血压。主动脉体是化学感受器，感受血氧和CO\u2082浓度变化。" },
+      { type:"single", stem:"椎动脉是由什么动脉发出？", options:["颈外动脉","颈内动脉","锁骨下动脉","颈总动脉"], answer:2, exp:"椎动脉发自锁骨下动脉第一段，向上穿第6~1颈椎横突孔，经枕骨大孔入颅，左右椎动脉汇合成基底动脉，参与构成大脑动脉环，供应脑的后部。" },
+      { type:"single", stem:"测量血压听诊的部位是：", options:["桡动脉","尺动脉","肱动脉","腋动脉"], answer:2, exp:"临床测量血压时，将听诊器胸件置于肘窝肱动脉搏动处。肱动脉是腋动脉的直接延续，沿肱二头肌内侧沟下行至肘窝，在桡骨颈水平分为桡动脉和尺动脉。" },
+      { type:"single", stem:"营养肺、气管的动脉血管，来源于：", options:["胸主动脉","腹主动脉","降主动脉","主动脉弓"], answer:0, exp:"支气管动脉发自胸主动脉，营养肺和支气管。注意区分：肺动脉是功能性血管，将静脉血送入肺进行气体交换；支气管动脉是营养性血管，供应肺组织本身的氧气和营养。" },
+      { type:"single", stem:"由腹腔干发出的分支，营养的脏器，不包括：", options:["肝","脾","肾","胃"], answer:2, exp:"腹腔干是腹主动脉的第一个不成对脏支，分为胃左动脉、肝总动脉和脾动脉，供应肝、胆囊、胃、十二指肠、脾和胰腺等。肾由肾动脉供血，肾动脉是腹主动脉的成对脏支，不来自腹腔干。" },
+      { type:"single", stem:"营养肝、胆、脾、胃的动脉来自：", options:["胸主动脉","腹主动脉","髂总动脉","髂内动脉"], answer:1, exp:"腹腔干发自腹主动脉前壁（约第12胸椎水平），其分支（胃左动脉、肝总动脉、脾动脉）供应肝、胆囊、脾、胃、十二指肠和胰腺等上腹部脏器。" },
+      { type:"single", stem:"营养睾丸和卵巢的动脉血管来自：", options:["胸主动脉","腹主动脉","髂总动脉","髂内动脉"], answer:1, exp:"睾丸动脉（男性）和卵巢动脉（女性）是腹主动脉的成对脏支，在肾动脉稍下方发自腹主动脉前壁。睾丸动脉经腹股沟管进入阴囊，卵巢动脉跨髂血管进入盆腔。" },
+      { type:"single", stem:"直肠、膀胱、子宫等脏器供血来自：", options:["腹主动脉","髂总动脉","髂内动脉","髂外动脉"], answer:2, exp:"髂内动脉是盆腔脏器的主要供血动脉，分支包括直肠下动脉、膀胱上/下动脉、子宫动脉等。髂外动脉主要供应下肢，腹主动脉供应腹腔脏器。" },
+      { type:"single", stem:"胸壁的静脉血回流到：", options:["锁骨下静脉","颈内静脉","奇静脉","下腔静脉"], answer:2, exp:"奇静脉收集右侧肋间后静脉、食管静脉和支气管静脉等胸壁静脉血，在脊柱右侧上行，注入上腔静脉。奇静脉是上、下腔静脉之间的重要侧支循环通路。" },
+      { type:"single", stem:"关于静脉角，正确的是：", options:["颈总静脉与锁骨下静脉之间的夹角","颈内静脉与锁骨下静脉之间的夹角","左、右头臂静脉之间的夹角","头臂静脉与锁骨下静脉之间的夹角"], answer:1, exp:"静脉角是颈内静脉与锁骨下静脉汇合处形成的夹角，左侧静脉角是胸导管的注入部位，右侧静脉角是右淋巴导管的注入部位。" },
+      { type:"single", stem:"深部静脉与同名动脉伴行，不包括：", options:["肱动脉对应肱静脉","髂总动脉对应髂总静脉","髂内动脉对应髂内静脉","腹主动脉对应腹主静脉"], answer:3, exp:"腹主动脉没有同名静脉伴行——腹主动脉的对应回流血管是下腔静脉，不存在\u2018腹主静脉\u2019。其他选项均正确：肱动脉与肱静脉伴行，髂总动脉与髂总静脉伴行，髂内动脉与髂内静脉伴行。" },
+      { type:"single", stem:"属于下肢深部的静脉是：", options:["大隐静脉","小隐静脉","股静脉","髂总静脉"], answer:2, exp:"股静脉是下肢深静脉，与股动脉伴行，收集下肢深部结构的静脉血。大隐静脉和小隐静脉属于下肢浅静脉，位于皮下。髂总静脉位于盆腔，不属于下肢静脉。" },
+      { type:"single", stem:"脾、胃、小肠的静脉血注入到：", options:["下腔静脉","上腔静脉","肝门静脉","奇静脉"], answer:2, exp:"肝门静脉收集腹腔内不成对脏器（胃、小肠、大肠、脾、胰、胆囊等）的静脉血，送入肝进行代谢和解毒，再经肝静脉注入下腔静脉。这是门静脉系统的功能特点——血液经过两次毛细血管网。" },
+      { type:"single", stem:"属于淋巴器官的是：", options:["淋巴干","脾","胸导管","右淋巴导管"], answer:1, exp:"脾是最大的淋巴器官，具有造血、滤血、免疫和储血功能。淋巴干、胸导管和右淋巴导管属于淋巴管道，负责输送淋巴液，不属于淋巴器官。" },
+      { type:"single", stem:"收集全身3/4的淋巴回流的管道是：", options:["胸导管","右淋巴导管","淋巴干","乳糜池"], answer:0, exp:"胸导管是全身最大的淋巴管道，起于乳糜池，收集左半身和右下半身（约占全身3/4）的淋巴，注入左静脉角。右淋巴导管收集右上半身的淋巴，注入右静脉角。" },
+      { type:"tf", stem:"肝静脉血注入门静脉。", options:["对","错"], answer:1, exp:"肝静脉收集肝自身的静脉血，直接注入下腔静脉，不经过门静脉。门静脉是将胃肠道等器官的静脉血送入肝进行代谢的血管，其血流方向是\u2018门静脉\u2192肝血窦\u2192肝静脉\u2192下腔静脉\u2019。" },
+      { type:"tf", stem:"心包腔是纤维性心包和浆膜性心包之间的腔隙。", options:["对","错"], answer:1, exp:"心包腔是浆膜性心包的脏层（心外膜）与壁层之间的潜在腔隙，内含少量浆液起润滑作用，而非纤维性心包与浆膜性心包之间的腔隙。纤维性心包是最外层，与浆膜性心包的壁层紧密相贴。" },
+      { type:"tf", stem:"冠状窦开口于冠状窦口。", options:["对","错"], answer:0, exp:"冠状窦位于心膈面的冠状沟内，收集大部分心壁的静脉血，开口于右心房的冠状窦口。这是一个解剖事实陈述，正确。" },
+      { type:"tf", stem:"脾位于左季肋区。", options:["对","错"], answer:0, exp:"脾位于左季肋区，与第9~11肋相对，正常时在肋弓下不能触及。脾是腹腔内最易受损的实质性器官，外伤破裂时可导致大出血。" }
+    ]
+  },
+  {
+    id: "cns",
+    name: "中枢神经系统",
+    questions: [
+      { type:"single", stem:"属中枢神经的是：", options:["脊神经","脑神经","脊髓","内脏神经"], answer:2, exp:"中枢神经系统包括脑和脊髓，分别位于颅腔和椎管内。脊神经、脑神经和内脏神经均属于周围神经系统，是中枢神经与身体各部位之间的连接通路。" },
+      { type:"single", stem:"属周围神经的是：", options:["端脑","脊神经","脑干","脊髓"], answer:1, exp:"周围神经系统包括脊神经（31对）、脑神经（12对）和内脏神经。端脑和脑干属于脑的一部分，脊髓属于中枢神经系统。" },
+      { type:"single", stem:"中枢神经内，形态和功能相同神经元胞体集聚成团状或树状，称：", options:["神经节","神经核","白质","灰质"], answer:1, exp:"中枢神经内神经元胞体的集聚称为神经核（如脑神经核、基底核）。周围神经内神经元胞体的集聚称为神经节（如脊神经节、自主神经节）。白质是神经纤维集聚区，灰质是神经元胞体和树突集聚区。" },
+      { type:"single", stem:"脊髓前角内含有什么神经的胞体？", options:["躯体运动","内脏运动","内脏感觉","躯体感觉"], answer:0, exp:"脊髓灰质前角含有躯体运动神经元的胞体，其轴突经前根出脊髓，支配躯干和四肢的骨骼肌。后角含有感觉神经元（接受后根传入的感觉信息），侧角含有内脏运动神经元（交感神经节前神经元）。" },
+      { type:"single", stem:"脊髓白质内下行的传导束是：", options:["薄束","皮质脊髓束","楔束","脊髓丘脑束"], answer:1, exp:"皮质脊髓束是下行传导束，起于大脑皮质运动区，经内囊、脑干下行至脊髓前角，控制随意运动。薄束、楔束和脊髓丘脑束均为上行传导束，分别传导本体感觉和痛温觉。" },
+      { type:"single", stem:"脑干，不包括：", options:["脑桥","中脑","小脑","延髓"], answer:2, exp:"脑干自下而上由延髓、脑桥和中脑三部分组成。小脑位于脑干后方，通过小脑上、中、下脚与脑干相连，但不属于脑干。" },
+      { type:"single", stem:"属于脑干腹侧面的结构，不包括：", options:["锥体","菱形窝","基底沟","锥体交叉"], answer:1, exp:"菱形窝位于脑干背侧面，是第四脑室的底，由延髓上部和脑桥的背侧面构成。锥体、基底沟和锥体交叉均位于脑干腹侧面。" },
+      { type:"single", stem:"无脑神经相连的脑是：", options:["端脑","脑桥","延髓","小脑"], answer:3, exp:"12对脑神经中，第\u2160对连于端脑（嗅球），第\u2161对连于间脑，第\u2162~\u2163对连于中脑，第\u2164~\u2167对连于脑桥，第\u2168~\u216b对连于延髓。小脑没有脑神经直接相连。" },
+      { type:"single", stem:"脑干中上行的纤维束，不包括：", options:["锥体束","内侧丘系","脊髓丘系","三叉丘系"], answer:0, exp:"锥体束（皮质脊髓束和皮质核束）是下行纤维束，发自大脑皮质，经内囊下行至脑干和脊髓。内侧丘系、脊髓丘系和三叉丘系均为上行感觉传导束。" },
+      { type:"single", stem:"小脑的功能，不包括：", options:["躯体平衡调节","肌张力调节","协调肌群运动","人的思维活动"], answer:3, exp:"小脑的主要功能是维持躯体平衡（前庭小脑）、调节肌张力（脊髓小脑）和协调随意运动（大脑小脑）。思维活动是大脑皮质（尤其额叶）的功能，与小脑无关。" },
+      { type:"single", stem:"调节内脏活动的高级中枢是：", options:["小脑","下丘脑","背侧丘脑","脑干"], answer:1, exp:"下丘脑是调节内脏活动和内分泌的高级中枢，控制体温、摄食、饮水、睡眠、情绪和自主神经活动等。下丘脑还通过垂体门脉系统调控腺垂体激素的分泌。" },
+      { type:"single", stem:"中央前回位于：", options:["额叶","顶叶","枕叶","颞叶"], answer:0, exp:"中央前回位于额叶后部、中央沟的前方，是躯体运动中枢（第一躯体运动区），管理对侧半身的随意运动。身体各部位在此区的投影呈倒置的人形（运动矮人）。" },
+      { type:"single", stem:"中央后回位于：", options:["额叶","顶叶","枕叶","颞叶"], answer:1, exp:"中央后回位于顶叶前部、中央沟的后方，是躯体感觉中枢（第一躯体感觉区），接受对侧半身的浅感觉和深感觉信息。身体各部位在此区的投影也呈倒置的人形（感觉矮人）。" },
+      { type:"single", stem:"说话中枢位于：", options:["额下回","颞上回","角回","额中回"], answer:0, exp:"说话中枢（Broca区）位于额下回后部（优势半球，通常为左侧），损伤后导致运动性失语症——患者能理解语言但无法流利表达。颞上回后部为听觉性语言中枢（Wernicke区），角回为视觉性语言中枢（阅读中枢）。" },
+      { type:"single", stem:"阅读中枢位于：", options:["额下回","颞上回","角回","额中回"], answer:2, exp:"阅读中枢（视觉性语言中枢）位于角回（顶下小叶），损伤后导致失读症——患者视觉正常但无法理解文字含义。额下回后部为说话中枢，颞上回后部为听觉性语言中枢，额中回后部为书写中枢。" },
+      { type:"single", stem:"内囊的纤维主要是：", options:["联络纤维","投射纤维","连合纤维","上行纤维"], answer:1, exp:"内囊是位于背侧丘脑、尾状核和豆状核之间的白质板，主要由投射纤维构成——即大脑皮质与皮质下结构（丘脑、脑干、脊髓）之间的上、下行纤维束。联络纤维连接同侧半球不同区域，连合纤维连接两侧半球。" },
+      { type:"single", stem:"与脑脊液的渗入回流有关的结构是：", options:["大脑镰","小脑幕","蛛网膜颗粒","硬脑膜"], answer:2, exp:"蛛网膜颗粒是蛛网膜突入上矢状窦和静脉窦内的绒毛状突起，脑脊液经此渗入静脉血，是脑脊液回流的主要途径。大脑镰和小脑幕是硬脑膜形成的隔，硬脑膜是最外层脑膜。" },
+      { type:"single", stem:"大脑动脉环，不包括：", options:["大脑前动脉","大脑中动脉","大脑后动脉","前交通动脉"], answer:1, exp:"大脑动脉环（Willis环）由前交通动脉、大脑前动脉、颈内动脉末端、后交通动脉和大脑后动脉组成。大脑中动脉虽然由颈内动脉发出，但不参与构成大脑动脉环。" },
+      { type:"single", stem:"脑室，不包括：", options:["第一脑室","侧脑室","第三脑室","第四脑室"], answer:0, exp:"脑室系统包括左、右侧脑室（第一、二脑室）、第三脑室和第四脑室。通常不称\u2018第一脑室\u2019，而称左侧脑室和右侧脑室。脑室内有脉络丛，产生脑脊液。" },
+      { type:"single", stem:"脑脊液的产生部位是：", options:["上矢状窦","脑室内的脉络丛","小脑延髓池","第三脑室"], answer:1, exp:"脑脊液由各脑室内的脉络丛产生（主要为侧脑室脉络丛），经室间孔\u2192第三脑室\u2192中脑水管\u2192第四脑室\u2192蛛网膜下腔，最终经蛛网膜颗粒渗入静脉窦。成人脑脊液总量约150ml，每日产生约500ml，处于动态循环中。" },
+      { type:"tf", stem:"反射弧是反射活动的基础。", options:["对","错"], answer:0, exp:"反射弧是反射活动的结构基础，由感受器\u2192传入神经\u2192中枢\u2192传出神经\u2192效应器五部分组成。反射弧任何环节受损，反射即消失。这是神经系统的核心工作原理。" },
+      { type:"tf", stem:"下丘脑可以对人体体温进行调节。", options:["对","错"], answer:0, exp:"下丘脑是体温调节中枢，通过调节皮肤血管舒缩、汗腺分泌和骨骼肌战栗产热等机制维持体温恒定。下丘脑前部散热中枢和后部产热中枢协同工作，使体温维持在37\u2103左右。" },
+      { type:"tf", stem:"尾状核不属于基底核。", options:["对","错"], answer:1, exp:"基底核包括尾状核、豆状核（壳核和苍白球）、杏仁体和屏状核。尾状核是基底核的重要组成部分，与壳核合称新纹状体，参与运动调控。" },
+      { type:"tf", stem:"脑的血供来自颈内动脉和颈外动脉。", options:["对","错"], answer:1, exp:"脑的血供来自颈内动脉系统和椎-基底动脉系统。颈内动脉供应大脑前2/3，椎动脉供应大脑后1/3和脑干、小脑。颈外动脉主要供应颅外结构（面部、头皮等），不参与脑的供血。" },
+      { type:"tf", stem:"中央前回管理对侧半身躯体感觉。", options:["对","错"], answer:1, exp:"中央前回是躯体运动中枢，管理对侧半身的随意运动。管理对侧半身躯体感觉的是中央后回（躯体感觉中枢）。两者仅一沟之隔（中央沟），功能截然不同。" }
+    ]
+  },
+  {
+    id: "pns",
+    name: "周围神经系统与感官",
+    questions: [
+      { type:"single", stem:"膈神经来自：", options:["颈丛","胸神经","腰丛","骶丛"], answer:0, exp:"膈神经主要发自第3~5颈神经前支（颈丛），是颈丛最重要的分支，支配膈肌的运动和胸膜、心包的感觉。膈神经损伤可导致膈肌麻痹、呼吸困难。" },
+      { type:"single", stem:"支配臂肌、前臂肌的神经来自：", options:["颈丛","臂丛","腰丛","骶丛"], answer:1, exp:"臂丛由第5~8颈神经前支和第1胸神经前支的大部分组成，支配上肢的肌和皮肤。臂丛的主要分支包括腋神经、肌皮神经、正中神经、尺神经和桡神经等。" },
+      { type:"single", stem:"属臂丛的分支，不包括：", options:["腋神经","正中神经","肋间神经","桡神经"], answer:2, exp:"肋间神经是胸神经的前支（第1~11对），沿肋沟走行于肋间内、外肌之间，支配肋间肌和胸腹壁皮肤。腋神经、正中神经和桡神经均为臂丛的分支。" },
+      { type:"single", stem:"支配股四头肌的神经是：", options:["正中神经","肌皮神经","股神经","坐骨神经"], answer:2, exp:"股神经发自腰丛（第2~4腰神经前支），支配股四头肌和缝匠肌等大腿前群肌，并分布于大腿前面和小腿内侧面皮肤。股神经损伤可致伸膝无力、膝跳反射消失。" },
+      { type:"single", stem:"全身最粗大的神经是：", options:["坐骨神经","正中神经","肌皮神经","股神经"], answer:0, exp:"坐骨神经是全身最粗大的神经，发自骶丛（第4腰神经~第3骶神经），经梨状肌下孔出盆腔，在臀大肌深面下行至大腿后面，支配大腿后群肌和小腿、足的全部肌。" },
+      { type:"single", stem:"混合性脑神经是：", options:["动眼神经","三叉神经","视神经","外展神经"], answer:1, exp:"三叉神经是混合性脑神经，含有躯体感觉纤维（分布于面部皮肤、口腔黏膜等）和躯体运动纤维（支配咀嚼肌）。动眼神经主要为运动性，视神经为感觉性，外展神经为运动性。" },
+      { type:"single", stem:"支配面部感觉和咀嚼肌功能活动的脑神经是：", options:["三叉神经","面神经","舌咽神经","迷走神经"], answer:0, exp:"三叉神经是第\u2164对脑神经，其感觉支（眼神经、上颌神经、下颌神经）分布于面部皮肤和黏膜，运动支支配咀嚼肌（咬肌、颞肌、翼内肌、翼外肌）。三叉神经痛是常见的脑神经疾病。" },
+      { type:"single", stem:"支配面部表情肌的脑神经是：", options:["三叉神经","面神经","迷走神经","舌咽神经"], answer:1, exp:"面神经是第\u2166对脑神经，其运动纤维支配面部表情肌、颈阔肌等。面神经损伤可导致面瘫——患侧额纹消失、眼睑不能闭合、鼻唇沟变浅、口角歪向健侧。" },
+      { type:"single", stem:"支配腮腺分泌的脑神经是：", options:["面神经","三叉神经","舌咽神经","舌下神经"], answer:2, exp:"舌咽神经（第\u2168对脑神经）的副交感纤维支配腮腺分泌。面神经支配下颌下腺和舌下腺的分泌，三叉神经不支配腺体分泌，舌下神经支配舌肌运动。" },
+      { type:"single", stem:"支配胸锁乳突肌和斜方肌的脑神经是：", options:["三叉神经","副神经","耳大神经","枕小神经"], answer:1, exp:"副神经是第\u216a对脑神经，支配胸锁乳突肌和斜方肌。副神经损伤可导致斜颈（胸锁乳突肌瘫痪）和肩部下垂、耸肩无力（斜方肌瘫痪）。" },
+      { type:"single", stem:"眼球壁中层，又称：", options:["纤维膜","巩膜","血管膜","视网膜"], answer:2, exp:"眼球壁由外向内分为三层：外层为纤维膜（角膜和巩膜），中层为血管膜（虹膜、睫状体和脉络膜），内层为视网膜。血管膜富含血管和色素，具有营养和遮光作用。" },
+      { type:"single", stem:"房水产生于：", options:["巩膜静脉窦","睫状体","脉络膜","眼后房"], answer:1, exp:"房水由睫状体的睫状突产生，经眼后房\u2192瞳孔\u2192眼前房\u2192虹膜角膜角\u2192巩膜静脉窦回流。房水具有营养角膜和晶状体、维持眼内压的功能。房水循环障碍可致眼压升高，引起青光眼。" },
+      { type:"single", stem:"无感光作用，称生理性盲点的部位是：", options:["黄斑","中央凹","视神经盘","视网膜后部"], answer:2, exp:"视神经盘（视神经乳头）是视神经穿出眼球壁的部位，此处无视细胞（视杆细胞和视锥细胞），无感光功能，在视野中形成生理性盲点。黄斑中央凹是视觉最敏锐的部位。" },
+      { type:"single", stem:"晶状体因疾病或创伤等原因而产生浑浊，影响视力，称：", options:["青光眼","白内障","飞蚊症","老花眼"], answer:1, exp:"白内障是晶状体混浊导致的视力障碍，常见于老年人（老年性白内障），也可由外伤、代谢疾病等引起。青光眼是眼压升高致视神经损伤，飞蚊症是玻璃体混浊，老花眼是晶状体弹性减退致调节力下降。" },
+      { type:"single", stem:"眼球内容物，不包括：", options:["房水","晶状体","球结膜","玻璃体"], answer:2, exp:"眼球内容物包括房水、晶状体和玻璃体，三者均透明、无血管，与角膜共同构成眼的屈光系统。球结膜是覆盖在巩膜前部和眼睑内面的薄膜，属于眼球壁的附属结构，不是内容物。" },
+      { type:"single", stem:"与咽相交通的管道是：", options:["外耳道","咽鼓管","鼓室","前庭窗"], answer:1, exp:"咽鼓管连接鼻咽部与鼓室，使鼓室与外界大气压保持平衡，保证鼓膜正常振动。小儿咽鼓管短而平直，上呼吸道感染易经此蔓延至鼓室，引起中耳炎。" },
+      { type:"single", stem:"中耳的构成，不包括：", options:["咽鼓管","鼓室","乳突窦","耳蜗"], answer:3, exp:"中耳包括鼓室、咽鼓管、乳突窦和乳突小房。耳蜗属于内耳，是听觉感受器（螺旋器/Corti器）所在部位。中耳的功能是将声波从鼓膜传导至内耳。" },
+      { type:"single", stem:"属膜迷路，是：", options:["骨半规管","前庭","耳蜗","膜半规管"], answer:3, exp:"膜迷路是套在骨迷路内的膜性管道，包括椭圆囊、球囊、膜半规管和蜗管，内含内淋巴。骨半规管、前庭和耳蜗属于骨迷路。膜迷路内含有位置觉和听觉感受器。" },
+      { type:"single", stem:"旋转运动的感受器，位于：", options:["椭圆囊斑","球囊斑","壶腹嵴","螺旋器"], answer:2, exp:"壶腹嵴位于膜半规管的壶腹内，是旋转运动（角加速度）的感受器。椭圆囊斑和球囊斑感受直线变速运动和头部位置（静态平衡），螺旋器（Corti器）是听觉感受器。" },
+      { type:"single", stem:"听觉感受器，位于：", options:["耳蜗","膜半规管","椭圆囊","蜗管的基底膜"], answer:3, exp:"听觉感受器是螺旋器（Corti器），位于蜗管（膜迷路的一部分）的基底膜上。声波经外耳道\u2192鼓膜\u2192听小骨链\u2192前庭窗\u2192外淋巴\u2192内淋巴\u2192基底膜振动\u2192螺旋器毛细胞兴奋\u2192产生听觉。" },
+      { type:"tf", stem:"颈神经有七对。", options:["对","错"], answer:1, exp:"颈神经共8对（C1~C8），而非7对。第1~7对颈神经在相应颈椎上方出椎管，第8对颈神经在第7颈椎下方出椎管。这是解剖学中常见的易错点——颈椎有7块，但颈神经有8对。" },
+      { type:"tf", stem:"第\u2162对脑神经属感觉性脑神经。", options:["对","错"], answer:1, exp:"第\u2162对脑神经为动眼神经，主要含躯体运动纤维（支配大部分眼外肌）和内脏运动纤维（副交感，支配瞳孔括约肌和睫状肌），属于运动性脑神经，不是感觉性脑神经。" },
+      { type:"tf", stem:"心血管和腺体是由内脏神经支配的。", options:["对","错"], answer:0, exp:"内脏神经（自主神经/植物神经）支配心肌、平滑肌和腺体，调节心血管活动、腺体分泌和内脏运动，不受意识直接控制。这是内脏神经与躯体神经的本质区别。" },
+      { type:"tf", stem:"眼前房与眼后房借瞳孔相通。", options:["对","错"], answer:0, exp:"眼前房（角膜与虹膜之间）和眼后房（虹膜与晶状体之间）通过瞳孔相通，房水由后房经瞳孔流入前房。若瞳孔闭锁（如虹膜炎后粘连），房水循环受阻，可继发青光眼。" },
+      { type:"tf", stem:"睫状肌可调节晶状体曲度。", options:["对","错"], answer:0, exp:"睫状肌收缩时睫状突向内移，睫状小带松弛，晶状体因自身弹性变凸，屈光力增强，适于看近物（调节作用）。睫状肌舒张时睫状小带拉紧，晶状体变扁，适于看远物。此过程受动眼神经副交感纤维支配。" }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════
+// 全局状态
+// ═══════════════════════════════════════════
+const LS_KEY = "anatomy_quiz_state_v2";
+let state = {
+  mode: "single",
+  bankIndex: 0,
+  scoring: "instant",
+  positions: {},
+  allOrder: null,
+  records: {},
+  wrongBook: {},
+  currentAnswers: {},
+  currentBatchSubmitted: false,
+  currentQuestionList: [],
+  _batchResult: null
+};
+
+function saveState() {
+  const toSave = {
+    mode: state.mode,
+    bankIndex: state.bankIndex,
+    scoring: state.scoring,
+    positions: state.positions,
+    allOrder: state.allOrder,
+    records: state.records,
+    wrongBook: state.wrongBook
+  };
+  try { localStorage.setItem(LS_KEY, JSON.stringify(toSave)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      state.mode = saved.mode || "single";
+      state.bankIndex = saved.bankIndex || 0;
+      state.scoring = saved.scoring || "instant";
+      state.positions = saved.positions || {};
+      state.allOrder = saved.allOrder || null;
+      state.records = saved.records || {};
+      state.wrongBook = saved.wrongBook || {};
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════
+// 工具函数
+// ═══════════════════════════════════════════
+function getPosKey() {
+  if (state.mode === "single") return "single_" + state.bankIndex;
+  return state.mode;
+}
+
+function getCurrentPosition() {
+  const key = getPosKey();
+  return state.positions[key] || 0;
+}
+
+function setCurrentPosition(pos) {
+  const key = getPosKey();
+  state.positions[key] = pos;
+  saveState();
+}
+
+function getRecordKey(bankIdx, qIdx) {
+  return bankIdx + "_" + qIdx;
+}
+
+function getQuestion(bankIdx, qIdx) {
+  return QUIZ_BANKS[bankIdx].questions[qIdx];
+}
+
+function getOptionLabel(idx, isTF) {
+  if (isTF) return idx === 0 ? "对" : "错";
+  return String.fromCharCode(65 + idx);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ═══════════════════════════════════════════
+// 构建当前题目列表
+// ═══════════════════════════════════════════
+function buildQuestionList() {
+  if (state.mode === "single") {
+    const bank = QUIZ_BANKS[state.bankIndex];
+    state.currentQuestionList = bank.questions.map((q, i) => ({
+      bankIdx: state.bankIndex, qIdx: i, globalIdx: i
+    }));
+  } else if (state.mode === "all") {
+    if (!state.allOrder) {
+      const all = [];
+      QUIZ_BANKS.forEach((bank, bi) => {
+        bank.questions.forEach((q, qi) => { all.push({ bankIdx: bi, qIdx: qi }); });
+      });
+      state.allOrder = shuffle(all);
+      saveState();
+    }
+    state.currentQuestionList = state.allOrder.map((item, i) => ({
+      bankIdx: item.bankIdx, qIdx: item.qIdx, globalIdx: i
+    }));
+  } else if (state.mode === "wrong") {
+    const wrongItems = [];
+    for (const [key, val] of Object.entries(state.wrongBook)) {
+      if (!val.mastered) {
+        const [bi, qi] = key.split("_").map(Number);
+        wrongItems.push({ bankIdx: bi, qIdx: qi });
+      }
+    }
+    state.currentQuestionList = wrongItems.map((item, i) => ({
+      bankIdx: item.bankIdx, qIdx: item.qIdx, globalIdx: i
+    }));
+  }
+}
+
+// ═══════════════════════════════════════════
+// 统计
+// ═══════════════════════════════════════════
+function getStats() {
+  let totalAnswered = 0, totalCorrect = 0;
+  const bankStats = QUIZ_BANKS.map(() => ({ answered: 0, correct: 0 }));
+  for (const [key, rec] of Object.entries(state.records)) {
+    if (!rec.answered) continue;
+    totalAnswered++;
+    if (rec.correct) totalCorrect++;
+    const [bi] = key.split("_").map(Number);
+    if (bankStats[bi]) { bankStats[bi].answered++; if (rec.correct) bankStats[bi].correct++; }
+  }
+  const totalQuestions = QUIZ_BANKS.reduce((s, b) => s + b.questions.length, 0);
+  const wrongCount = Object.values(state.wrongBook).filter(w => !w.mastered).length;
+  return { totalAnswered, totalCorrect, totalQuestions, wrongCount, bankStats };
+}
+
+// ═══════════════════════════════════════════
+// 渲染
+// ═══════════════════════════════════════════
+function renderAll() {
+  renderModeBar();
+  renderScoringToggle();
+  renderQuestion();
+  renderSidebar();
+  updateNavButtons();
+}
+
+function renderModeBar() {
+  const bankSelect = document.getElementById("bankSelect");
+  const btnSubmitAll = document.getElementById("btnSubmitAll");
+  if (state.mode === "single") {
+    bankSelect.style.display = "inline-block";
+    bankSelect.innerHTML = QUIZ_BANKS.map((b, i) =>
+      '<option value="' + i + '" ' + (i === state.bankIndex ? "selected" : "") + '>' + b.name + '（' + b.questions.length + '题）</option>'
+    ).join("");
+    btnSubmitAll.style.display = state.scoring === "batch" ? "inline-block" : "none";
+  } else if (state.mode === "all") {
+    bankSelect.style.display = "none";
+    btnSubmitAll.style.display = state.scoring === "batch" ? "inline-block" : "none";
+  } else {
+    bankSelect.style.display = "none";
+    btnSubmitAll.style.display = "none";
+  }
+}
+
+function renderScoringToggle() {
+  document.getElementById("scInstant").className = state.scoring === "instant" ? "active" : "";
+  document.getElementById("scBatch").className = state.scoring === "batch" ? "active" : "";
+}
+
+function renderQuestion() {
+  const area = document.getElementById("questionArea");
+  const batchResult = document.getElementById("batchResult");
+
+  if (state.currentQuestionList.length === 0) {
+    area.innerHTML = '<div class="empty-state"><div class="empty-icon">' +
+      (state.mode === "wrong" ? "🎉" : "📝") + '</div><p>' +
+      (state.mode === "wrong" ? "错题本为空，全部已掌握！" : "请选择题库开始刷题") + '</p></div>';
+    batchResult.classList.remove("show");
+    return;
+  }
+
+  const pos = getCurrentPosition();
+  if (pos >= state.currentQuestionList.length) {
+    const total = state.currentQuestionList.length;
+    const done = countDoneInCurrentList();
+    area.innerHTML = '<div class="empty-state"><div class="empty-icon">🎉</div>' +
+      '<p style="font-size:18px;font-weight:600;color:var(--text);">本组题目已全部完成！</p>' +
+      '<p style="color:var(--text-sub);margin-top:4px;">已完成 ' + done + '/' + total + ' 题</p>' +
+      '<button class="btn-primary" style="margin-top:16px;padding:10px 24px;" onclick="restartCurrent()">重新开始</button></div>';
+    batchResult.classList.remove("show");
+    return;
+  }
+
+  const item = state.currentQuestionList[pos];
+  const q = getQuestion(item.bankIdx, item.qIdx);
+  const isTF = q.type === "tf";
+  const recKey = getRecordKey(item.bankIdx, item.qIdx);
+  const rec = state.records[recKey];
+  const isAnswered = rec && rec.answered;
+  const selectedAnswer = state.currentAnswers[item.globalIdx];
+  const bankName = QUIZ_BANKS[item.bankIdx].name;
+  const showCorrect = (state.scoring === "instant" && isAnswered) || (state.scoring === "batch" && state.currentBatchSubmitted);
+
+  let html = '<div class="q-header">' +
+    '<span class="q-num">第 ' + (pos + 1) + '/' + state.currentQuestionList.length + ' 题 · ' + bankName + '</span>' +
+    '<span class="q-type-tag' + (isTF ? ' tf' : '') + '">' + (isTF ? '判断题' : '单选题') + '</span></div>';
+  html += '<div class="q-stem">' + q.stem + '</div>';
+  html += '<div class="options">';
+
+  for (let i = 0; i < q.options.length; i++) {
+    let cls = "opt";
+    if (showCorrect) {
+      if (i === q.answer) cls += " correct-reveal";
+      if (i === selectedAnswer && i !== q.answer) cls += " wrong";
+    } else {
+      if (i === selectedAnswer) cls += " selected";
+    }
+    const clickable = (!showCorrect && state.scoring === "instant") || (state.scoring === "batch" && !state.currentBatchSubmitted);
+    html += '<div class="' + cls + '"' + (clickable ? ' onclick="selectOption(' + item.globalIdx + ',' + i + ')"' : '') + '>' +
+      '<span class="opt-letter">' + getOptionLabel(i, isTF) + '.</span>' +
+      '<span>' + q.options[i] + '</span></div>';
+  }
+  html += '</div>';
+
+  if (showCorrect) {
+    html += '<div class="explanation show">' +
+      '<div class="exp-label">✅ 正确答案：' + getOptionLabel(q.answer, isTF) + (isTF ? '' : '. ' + q.options[q.answer]) + '</div>' +
+      '<div style="margin-top:6px;line-height:1.8;">' + q.exp + '</div>' +
+      '<div class="exp-ai">⚠️ 以上解析为AI生成，仅供参考学习，如有疑问请核对教材。</div></div>';
+  }
+
+  area.innerHTML = html;
+
+  if (state.scoring === "batch" && state.currentBatchSubmitted) {
+    showBatchResult();
+  } else {
+    batchResult.classList.remove("show");
+  }
+}
+
+function selectOption(globalIdx, optIdx) {
+  if (state.scoring === "instant") {
+    state.currentAnswers[globalIdx] = optIdx;
+    const item = state.currentQuestionList[globalIdx];
+    const q = getQuestion(item.bankIdx, item.qIdx);
+    const isCorrect = optIdx === q.answer;
+    const recKey = getRecordKey(item.bankIdx, item.qIdx);
+
+    state.records[recKey] = {
+      answered: true,
+      correct: isCorrect,
+      count: (state.records[recKey] ? state.records[recKey].count || 0 : 0) + 1
+    };
+
+    if (!isCorrect) {
+      const wb = state.wrongBook[recKey];
+      state.wrongBook[recKey] = {
+        errorCount: (wb ? wb.errorCount || 0 : 0) + 1,
+        mastered: false,
+        lastError: Date.now()
+      };
+    } else {
+      if (state.wrongBook[recKey]) {
+        state.wrongBook[recKey].mastered = true;
+      }
+    }
+    saveState();
+    renderQuestion();
+    renderSidebar();
+  } else if (state.scoring === "batch" && !state.currentBatchSubmitted) {
+    state.currentAnswers[globalIdx] = optIdx;
+    renderQuestion();
+  }
+}
+
+function submitAll() {
+  if (state.scoring !== "batch") return;
+  const list = state.currentQuestionList;
+  let answeredCount = 0, correctCount = 0;
+
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    const sel = state.currentAnswers[i];
+    if (sel === undefined) continue;
+    answeredCount++;
+    const q = getQuestion(item.bankIdx, item.qIdx);
+    const isCorrect = sel === q.answer;
+    if (isCorrect) correctCount++;
+    const recKey = getRecordKey(item.bankIdx, item.qIdx);
+
+    state.records[recKey] = {
+      answered: true,
+      correct: isCorrect,
+      count: (state.records[recKey] ? state.records[recKey].count || 0 : 0) + 1
+    };
+
+    if (!isCorrect) {
+      const wb = state.wrongBook[recKey];
+      state.wrongBook[recKey] = {
+        errorCount: (wb ? wb.errorCount || 0 : 0) + 1,
+        mastered: false,
+        lastError: Date.now()
+      };
+    } else {
+      if (state.wrongBook[recKey]) {
+        state.wrongBook[recKey].mastered = true;
+      }
+    }
+  }
+
+  state.currentBatchSubmitted = true;
+  state._batchResult = { answeredCount: answeredCount, correctCount: correctCount, total: list.length };
+  saveState();
+  renderQuestion();
+  renderSidebar();
+  showToast("判分完成：" + correctCount + "/" + answeredCount + " 正确（" + (list.length - answeredCount) + " 题未答）");
+}
+
+function showBatchResult() {
+  const batchResult = document.getElementById("batchResult");
+  const br = state._batchResult;
+  if (!br) return;
+  const pct = br.answeredCount > 0 ? Math.round(br.correctCount / br.answeredCount * 100) : 0;
+  document.getElementById("batchScore").innerHTML =
+    '<span style="color:' + (pct >= 60 ? 'var(--correct)' : 'var(--wrong)') + '">' + br.correctCount + '</span> / ' + br.answeredCount;
+  document.getElementById("batchDetail").textContent =
+    '正确率 ' + pct + '% · 共 ' + br.total + ' 题，' + (br.total - br.answeredCount) + ' 题未答（未答不计分）';
+  batchResult.classList.add("show");
+}
+
+function countDoneInCurrentList() {
+  let count = 0;
+  for (const item of state.currentQuestionList) {
+    const recKey = getRecordKey(item.bankIdx, item.qIdx);
+    if (state.records[recKey] && state.records[recKey].answered) count++;
+  }
+  return count;
+}
+
+function renderSidebar() {
+  const stats = getStats();
+  const overallPct = stats.totalAnswered > 0 ? Math.round(stats.totalCorrect / stats.totalAnswered * 100) : 0;
+  const completionPct = Math.round(stats.totalAnswered / stats.totalQuestions * 100);
+
+  document.getElementById("statOverall").textContent = stats.totalAnswered > 0 ? overallPct + "%" : "-";
+  document.getElementById("statOverall").className = "val " + (overallPct >= 60 ? "good" : "bad");
+  document.getElementById("statTotal").textContent = stats.totalAnswered;
+  document.getElementById("statWrongCount").textContent = stats.wrongCount;
+  document.getElementById("progressBar").style.width = completionPct + "%";
+  document.getElementById("progressLabel").textContent = "完成度 " + completionPct + "%（" + stats.totalAnswered + "/" + stats.totalQuestions + "）";
+
+  let bsHtml = "";
+  QUIZ_BANKS.forEach((b, i) => {
+    const bs = stats.bankStats[i];
+    const pct = bs.answered > 0 ? Math.round(bs.correct / bs.answered * 100) : 0;
+    bsHtml += '<div class="stat-row">' +
+      '<span style="font-size:12px;">' + b.name.substring(0, 8) + '...</span>' +
+      '<span class="val" style="font-size:13px;">' + (bs.answered > 0 ? pct + "% (" + bs.correct + "/" + bs.answered + ")" : "-") + '</span></div>';
+  });
+  document.getElementById("bankStats").innerHTML = bsHtml || '<p style="font-size:13px;color:var(--text-sub);">暂无数据</p>';
+
+  let wlHtml = "";
+  const wbEntries = Object.entries(state.wrongBook).filter(function(e) { return !e[1].mastered; });
+  if (wbEntries.length === 0) {
+    wlHtml = '<p style="font-size:13px;color:var(--text-sub);">暂无错题 🎉</p>';
+  } else {
+    wbEntries.slice(0, 20).forEach(function(entry) {
+      const key = entry[0], val = entry[1];
+      const parts = key.split("_");
+      const bi = parseInt(parts[0]), qi = parseInt(parts[1]);
+      const q = getQuestion(bi, qi);
+      const stemShort = q.stem.length > 18 ? q.stem.substring(0, 18) + "..." : q.stem;
+      wlHtml += '<div class="wrong-item" onclick="jumpToWrong(\'' + key + '\')" title="点击跳转">' +
+        stemShort + '<span class="w-tag unmastered">错' + val.errorCount + '次</span></div>';
+    });
+    if (wbEntries.length > 20) {
+      wlHtml += '<p style="font-size:12px;color:var(--text-sub);margin-top:4px;">...还有 ' + (wbEntries.length - 20) + ' 道错题</p>';
+    }
+  }
+  document.getElementById("wrongList").innerHTML = wlHtml;
+}
+
+function jumpToWrong(key) {
+  const parts = key.split("_");
+  const bi = parseInt(parts[0]), qi = parseInt(parts[1]);
+  switchMode("wrong");
+  const pos = state.currentQuestionList.findIndex(function(item) { return item.bankIdx === bi && item.qIdx === qi; });
+  if (pos >= 0) {
+    setCurrentPosition(pos);
+    state.currentBatchSubmitted = false;
+    state.currentAnswers = {};
+    renderAll();
+  }
+}
+
+// ═══════════════════════════════════════════
+// 模式切换
+// ═══════════════════════════════════════════
+function switchMode(mode) {
+  if (state.mode === mode) return;
+  state.mode = mode;
+  state.currentBatchSubmitted = false;
+  state.currentAnswers = {};
+  state._batchResult = null;
+  buildQuestionList();
+  const pos = getCurrentPosition();
+  if (pos >= state.currentQuestionList.length) { setCurrentPosition(0); }
+
+  document.getElementById("navSingle").className = mode === "single" ? "active" : "";
+  document.getElementById("navAll").className = mode === "all" ? "active" : "";
+  document.getElementById("navWrong").className = mode === "wrong" ? "active" : "";
+
+  saveState();
+  renderAll();
+}
+
+function onBankChange() {
+  state.bankIndex = parseInt(document.getElementById("bankSelect").value);
+  state.currentBatchSubmitted = false;
+  state.currentAnswers = {};
+  state._batchResult = null;
+  buildQuestionList();
+  const pos = getCurrentPosition();
+  if (pos >= state.currentQuestionList.length) setCurrentPosition(0);
+  saveState();
+  renderAll();
+}
+
+function setScoring(type) {
+  state.scoring = type;
+  state.currentBatchSubmitted = false;
+  state.currentAnswers = {};
+  state._batchResult = null;
+  saveState();
+  renderAll();
+}
+
+function restartCurrent() {
+  if (state.mode === "all") { state.allOrder = null; }
+  setCurrentPosition(0);
+  state.currentBatchSubmitted = false;
+  state.currentAnswers = {};
+  state._batchResult = null;
+  buildQuestionList();
+  saveState();
+  renderAll();
+  showToast("已重新开始");
+}
+
+// ═══════════════════════════════════════════
+// 导航
+// ═══════════════════════════════════════════
+function goPrev() {
+  const pos = getCurrentPosition();
+  if (pos > 0) {
+    setCurrentPosition(pos - 1);
+    state.currentBatchSubmitted = false;
+    state._batchResult = null;
+    renderAll();
+  }
+}
+
+function goNext() {
+  const pos = getCurrentPosition();
+  if (pos < state.currentQuestionList.length - 1) {
+    setCurrentPosition(pos + 1);
+    state.currentBatchSubmitted = false;
+    state._batchResult = null;
+    renderAll();
+  }
+}
+
+// ═══════════════════════════════════════════
+// 重置
+// ═══════════════════════════════════════════
+function confirmReset(action) {
+  const overlay = document.getElementById("modalOverlay");
+  const title = document.getElementById("modalTitle");
+  const msg = document.getElementById("modalMsg");
+  const btn = document.getElementById("modalConfirmBtn");
+
+  if (action === "progress") {
+    title.textContent = "重置全部进度";
+    msg.textContent = "这将清除所有答题记录、正确率统计和断点续做位置。错题本不会被清除。此操作不可撤销，确认继续？";
+    btn.textContent = "确认重置";
+    btn.onclick = doResetProgress;
+  } else if (action === "wrong") {
+    title.textContent = "清空错题本";
+    msg.textContent = "这将清除所有错题记录（包括已掌握和未掌握的）。答题统计不受影响。此操作不可撤销，确认继续？";
+    btn.textContent = "确认清空";
+    btn.onclick = doResetWrongBook;
+  }
+  overlay.classList.add("show");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("show");
+}
+
+function doResetProgress() {
+  state.records = {};
+  state.positions = {};
+  state.allOrder = null;
+  state.currentBatchSubmitted = false;
+  state.currentAnswers = {};
+  state._batchResult = null;
+  buildQuestionList();
+  saveState();
+  closeModal();
+  renderAll();
+  showToast("进度已重置");
+}
+
+function doResetWrongBook() {
+  state.wrongBook = {};
+  state.currentBatchSubmitted = false;
+  state.currentAnswers = {};
+  state._batchResult = null;
+  buildQuestionList();
+  saveState();
+  closeModal();
+  renderAll();
+  showToast("错题本已清空");
+}
+
+// ═══════════════════════════════════════════
+// Toast
+// ═══════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove("show"); }, 2000);
+}
+
+// ═══════════════════════════════════════════
+// 键盘导航
+// ═══════════════════════════════════════════
+document.addEventListener("keydown", function(e) {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+  if (e.key === "ArrowLeft" || e.key === "a") { e.preventDefault(); goPrev(); }
+  if (e.key === "ArrowRight" || e.key === "d") { e.preventDefault(); goNext(); }
+  if (state.scoring === "instant" && !state.currentBatchSubmitted && state.currentQuestionList.length > 0) {
+    const pos = getCurrentPosition();
+    if (pos < state.currentQuestionList.length) {
+      const item = state.currentQuestionList[pos];
+      const q = getQuestion(item.bankIdx, item.qIdx);
+      const recKey = getRecordKey(item.bankIdx, item.qIdx);
+      const isAnswered = state.records[recKey] && state.records[recKey].answered;
+      if (!isAnswered) {
+        const numMap = { "1": 0, "2": 1, "3": 2, "4": 3 };
+        if (e.key in numMap && numMap[e.key] < q.options.length) {
+          e.preventDefault();
+          selectOption(item.globalIdx, numMap[e.key]);
+        }
+      }
+    }
+  }
+});
+
+// ═══════════════════════════════════════════
+// 更新导航按钮
+// ═══════════════════════════════════════════
+function updateNavButtons() {
+  const pos = getCurrentPosition();
+  const total = state.currentQuestionList.length;
+  document.getElementById("navProgress").textContent = total > 0 ? (pos + 1) + " / " + total : "";
+  // 禁用首尾按钮
+  const btnPrev = document.getElementById("btnPrev");
+  const btnNext = document.getElementById("btnNext");
+  if (btnPrev) btnPrev.disabled = pos <= 0;
+  if (btnNext) btnNext.disabled = pos >= total - 1;
+}
+
+// ═══════════════════════════════════════════
+// 初始化
+// ═══════════════════════════════════════════
+function init() {
+  loadState();
+  buildQuestionList();
+  const pos = getCurrentPosition();
+  if (pos >= state.currentQuestionList.length && state.currentQuestionList.length > 0) {
+    setCurrentPosition(0);
+  }
+  document.getElementById("navSingle").className = state.mode === "single" ? "active" : "";
+  document.getElementById("navAll").className = state.mode === "all" ? "active" : "";
+  document.getElementById("navWrong").className = state.mode === "wrong" ? "active" : "";
+  renderAll();
+}
+
+init();
+</script>
+
+</body>
+</html>
