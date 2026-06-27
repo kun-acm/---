@@ -226,7 +226,7 @@ body {
 
 /* ── Bottom nav ── */
 .bottom-nav {
-  max-width:var(--max-w); margin:0 auto; padding:0 24px 32px;
+  margin-top:24px;
   display:flex; justify-content:center; align-items:center; gap:16px;
 }
 .bottom-nav button {

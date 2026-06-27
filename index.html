@@ -51,6 +51,13 @@
         <p>请选择题库开始刷题</p>
       </div>
     </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav" id="navButtons">
+      <button id="btnPrev" onclick="goPrev()">← 上一题</button>
+      <span class="nav-progress" id="navProgress"></span>
+      <button id="btnNext" onclick="goNext()">下一题 →</button>
+    </div>
   </div>
 
   <!-- Batch result -->
@@ -111,13 +118,6 @@
     </section>
   </div>
 </main>
-
-<!-- Bottom Navigation -->
-<div class="bottom-nav" id="navButtons">
-  <button id="btnPrev" onclick="goPrev()">← 上一题</button>
-  <span class="nav-progress" id="navProgress"></span>
-  <button id="btnNext" onclick="goNext()">下一题 →</button>
-</div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
