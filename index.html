@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-ancestors 'self';">
+<title>基础医学概论刷题</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════ Top Bar ═══════════════ -->
+<header class="topbar">
+  <span class="logo">基础医学概论 · 刷题</span>
+  <nav class="nav">
+    <button id="navSingle" class="active" onclick="switchMode('single')">单一题库</button>
+    <button id="navAll" onclick="switchMode('all')">全题库乱序</button>
+    <button id="navWrong" onclick="switchMode('wrong')">错题练习</button>
+    <button id="navKnowledge" onclick="switchView('knowledge')">知识点</button>
+  </nav>
+</header>
+
+<!-- ═══════════════ Quiz View ═══════════════ -->
+<main class="main" id="quizView">
+
+  <!-- Mode bar -->
+  <div class="card mode-bar" id="modeBar">
+    <div class="subject-filter" id="subjectFilter">
+      <button class="subj-btn active" onclick="setSubject('解剖学')">解剖学</button>
+      <button class="subj-btn" onclick="setSubject('生理学')">生理学</button>
+      <button class="subj-btn" onclick="setSubject('组织学')">组织学</button>
+    </div>
+    <div class="mode-bar-row">
+      <select id="bankSelect" onchange="onBankChange()"></select>
+      <button class="btn-outline" onclick="restartCurrent()">重新开始</button>
+      <button class="btn-primary" id="btnSubmitAll" onclick="submitAll()" style="display:none;">提交整组判分</button>
+    </div>
+  </div>
+
+  <!-- Scoring toggle -->
+  <div class="card scoring-toggle" id="scoringToggle">
+    <button id="scInstant" class="active" onclick="setScoring('instant')">即时判分</button>
+    <button id="scBatch" onclick="setScoring('batch')">整组判分</button>
+  </div>
+
+  <!-- Question -->
+  <div class="card q-card" id="questionCard">
+    <div id="questionArea">
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <p>请选择题库开始刷题</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch result -->
+  <div class="card batch-result" id="batchResult">
+    <div class="score" id="batchScore"></div>
+    <p style="text-align:center;color:var(--text-sub);margin-top:8px;" id="batchDetail"></p>
+  </div>
+
+  <!-- Sidebar (stats) -->
+  <div class="sidebar" id="sidebar">
+    <div class="card">
+      <h3>统计</h3>
+      <div class="stat-row"><span>总正确率</span><span class="val" id="statOverall">-</span></div>
+      <div class="stat-row"><span>总答题数</span><span class="val" id="statTotal">0</span></div>
+      <div class="stat-row"><span>错题本</span><span class="val bad" id="statWrongCount">0</span></div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar" style="width:0%"></div></div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:8px;" id="progressLabel">完成度 0%</p>
+    </div>
+    <div class="card">
+      <h3>各题库正确率</h3>
+      <div id="bankStats"></div>
+    </div>
+    <div class="card">
+      <h3>错题本</h3>
+      <div id="wrongList"><p style="font-size:13px;color:var(--text-sub);">暂无错题</p></div>
+    </div>
+    <div class="card">
+      <h3>设置</h3>
+      <button class="settings-btn" onclick="confirmReset('progress')">重置全部进度</button>
+      <button class="settings-btn danger" onclick="confirmReset('wrong')">清空错题本</button>
+    </div>
+    <div class="card" style="background:var(--accent-bg);border-color:var(--accent);">
+      <p style="font-size:12px;color:var(--accent-h);line-height:1.7;margin:0;">
+        ⚠️ <strong>数据提示</strong>：答题进度、错题本等数据存储在浏览器本地（localStorage），不会上传服务器。以下操作可能导致数据丢失：清除浏览器缓存/历史记录、使用无痕/隐私模式、更换浏览器或电脑。建议定期检查进度，重要数据自行备份。
+      </p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════ Knowledge View ═══════════════ -->
+<main class="main knowledge-view" id="knowledgeView" style="display:none;">
+  <div class="kp-layout">
+    <aside class="kp-sidebar card">
+      <div class="kp-subj-tabs">
+        <button class="kp-subj-btn active" onclick="setKnowledgeSubject('解剖学')">解剖学</button>
+        <button class="kp-subj-btn" onclick="setKnowledgeSubject('生理学')">生理学</button>
+        <button class="kp-subj-btn" onclick="setKnowledgeSubject('组织学')">组织学</button>
+      </div>
+      <h3 class="kp-title" id="kpSubjectTitle">解剖学</h3>
+      <div class="kp-chapter-list" id="kpChapterList"></div>
+    </aside>
+    <section class="kp-content card" id="kpContent">
+      <div class="empty-state">
+        <div class="empty-icon">📖</div>
+        <p>请选择左侧章节查看知识点</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav" id="navButtons">
+  <button id="btnPrev" onclick="goPrev()">← 上一题</button>
+  <span class="nav-progress" id="navProgress"></span>
+  <button id="btnNext" onclick="goNext()">下一题 →</button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <p id="modalMsg"></p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-danger" id="modalConfirmBtn" onclick="">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- Data files (load before app.js) -->
+<script src="js/data-anatomy.js"></script>
+<script src="js/data-physiology.js"></script>
+<script src="js/data-histology.js"></script>
+<script src="js/data-knowledge.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
