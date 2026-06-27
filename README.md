@@ -57,12 +57,6 @@
 > # 访问 http://localhost:8080/
 > ```
 
-### GitHub Pages 部署
-
-1. 仓库 **Settings → Pages**
-2. **Source** 选 `Deploy from a branch`，Branch 选 `main` / `(root)`，点 **Save**
-3. 等待 1-2 分钟，访问 `https://<用户名>.github.io/<仓库名>/`
-
 ---
 
 ## 📁 项目结构
